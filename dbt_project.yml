@@ -1,0 +1,126 @@
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: "<evm_chain>_models" # replace with the name of the chain
+version: "1.0.0"
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "<evm_chain>" # replace with the name of the chain
+
+# These configurations specify where dbt should look for different types of files.
+# The `source-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths: ["dbt_packages/fsc_evm/doc_descriptions", "models/doc_descriptions", "models"]
+
+target-path: "target" # directory which will store compiled SQL files
+clean-targets: # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_modules"
+  - "dbt_packages"
+
+tests:
+  <evm_chain>_models: # replace with the name of the chain
+    +store_failures: true # all tests
+  fsc_evm:
+    +store_failures: true
+
+on-run-start:
+  - "{{ fsc_evm.create_sps() }}"
+  - "{{ fsc_evm.create_udfs() }}"
+
+on-run-end:
+  - '{{ fsc_evm.apply_meta_as_tags(results) }}'
+
+dispatch:
+  - macro_namespace: dbt
+    search_order:
+      - <evm_chain>-models
+      - dbt_snowflake_query_tags
+      - dbt
+
+query-comment:
+  comment: '{{ dbt_snowflake_query_tags.get_query_comment(node) }}'
+  append: true # Snowflake removes prefixed comments.
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+models:
+  <evm_chain>_models: # replace with the name of the chain
+    +copy_grants: true
+    +persist_docs:
+      relation: true
+      columns: true
+    +on_schema_change: "append_new_columns"
+  livequery_models:
+    +materialized: ephemeral
+  fsc_evm:
+    +enabled: false # disable fsc_evm package by default
+    +copy_grants: true
+    +persist_docs:
+      relation: true
+      columns: true
+    +on_schema_change: "append_new_columns"
+    main_package:
+      +enabled: false # disable main_package by default, enabled other packages as needed
+      core:
+        +enabled: true # enable subpackages, as needed
+      github_actions:
+        +enabled: true
+      labels:
+        +enabled: true
+      prices:
+        +enabled: true
+      utils:
+        +enabled: true
+
+vars:
+  "dbt_date:time_zone": GMT
+  STREAMLINE_INVOKE_STREAMS: False
+  STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
+  UPDATE_UDFS_AND_SPS: False
+  UPDATE_SNOWFLAKE_TAGS: True
+  OBSERV_FULL_TEST: False
+  WAIT: 0
+  HEAL_MODEL: False
+  HEAL_MODELS: []
+  START_GHA_TASKS: False
+
+#### STREAMLINE 2.0 BEGIN ####
+
+  API_INTEGRATION: '{{ var("config")[target.name]["API_INTEGRATION"] if var("config")[target.name] else var("config")["dev"]["API_INTEGRATION"] }}'
+  EXTERNAL_FUNCTION_URI: '{{ var("config")[target.name]["EXTERNAL_FUNCTION_URI"] if var("config")[target.name] else var("config")["dev"]["EXTERNAL_FUNCTION_URI"] }}'
+  ROLES: |
+    ["INTERNAL_DEV"]
+
+  config:
+  # The keys correspond to dbt profiles and are case sensitive
+    dev:
+      API_INTEGRATION: 
+      EXTERNAL_FUNCTION_URI: 
+      ROLES:
+        - AWS_LAMBDA_<EVM_CHAIN>_API # replace with the name of the chain
+        - INTERNAL_DEV
+
+    prod:
+      API_INTEGRATION: 
+      EXTERNAL_FUNCTION_URI: 
+      ROLES:
+        - AWS_LAMBDA_<EVM_CHAIN>_API # replace with the name of the chain
+        - INTERNAL_DEV
+        - DBT_CLOUD_<EVM_CHAIN> # replace with the name of the chain
+
+#### STREAMLINE 2.0 END ####
+
+#### FSC_EVM BEGIN ####
+
+# Please visit https://github.com/FlipsideCrypto/fsc-evm/wiki for more information on required and optional variables
+
+#### FSC_EVM END ####
