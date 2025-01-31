@@ -3,7 +3,7 @@
 # Welcome to the Flipside Crypto Core Models Documentation!
 
 ## **What does this documentation cover?**
-The documentation included here details the design of the Core tables and views available via [Flipside Crypto.](https://flipsidecrypto.xyz/) For more information on how these models are built, please see [the github repository.](https://github.com/FlipsideCrypto/<evm_chain>-models)
+The documentation included here details the design of the Core tables and views available via [Flipside Crypto.](https://flipsidecrypto.xyz/) For more information on how these models are built, please see [the github repository.](https://github.com/FlipsideCrypto/monad-models)
 
 ## **How do I use these docs?**
 The easiest way to navigate this documentation is to use the Quick Links below. These links will take you to the documentation for each table, which contains a description, a list of the columns, and other helpful information.
@@ -16,22 +16,22 @@ There is more information on how to use dbt docs in the last section of this doc
 
 **Click on the links below to jump to the documentation for each schema.**
 
-### Core Tables (<evm_chain>.core)
+### Core Tables (monad.core)
 
 **Dimension Tables:**
-- [dim_labels](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.core__dim_labels)
+- [dim_labels](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__dim_labels)
 
 **Fact Tables:**
-- [fact_blocks](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.core__fact_blocks)
-- [fact_event_logs](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.core__fact_event_logs)
-- [fact_transactions](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.core__fact_transactions)
-- [fact_traces](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.core__fact_traces)
+- [fact_blocks](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_blocks)
+- [fact_event_logs](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_event_logs)
+- [fact_transactions](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_transactions)
+- [fact_traces](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_traces)
 
-### Price Tables (<evm_chain>.price)
-- [dim_asset_metadata](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.price__dim_asset_metadata)
-- [fact_prices_ohlc_hourly](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.price__fact_prices_ohlc_hourly)
-- [ez_asset_metadata](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.price__ez_asset_metadata)
-- [ez_prices_hourly](https://flipsidecrypto.github.io/<evm_chain>-models/#!/model/model.fsc_evm.price__ez_prices_hourly)
+### Price Tables (monad.price)
+- [dim_asset_metadata](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__dim_asset_metadata)
+- [fact_prices_ohlc_hourly](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__fact_prices_ohlc_hourly)
+- [ez_asset_metadata](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__ez_asset_metadata)
+- [ez_prices_hourly](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__ez_prices_hourly)
 
 ## **Helpful User-Defined Functions (UDFs)**
 
@@ -75,7 +75,7 @@ Note that you can also right-click on models to interactively filter and explore
 - [Flipside](https://flipsidecrypto.xyz/)
 - [Data Studio](https://flipsidecrypto.xyz/studio)
 - [Tutorials](https://docs.flipsidecrypto.com/our-data/tutorials)
-- [Github](https://github.com/FlipsideCrypto/<evm_chain>-models)
+- [Github](https://github.com/FlipsideCrypto/monad-models)
 - [What is dbt?](https://docs.getdbt.com/docs/introduction)
 
 {% enddocs %}

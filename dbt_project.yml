@@ -1,17 +1,17 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: "<evm_chain>_models" # replace with the name of the chain
+name: "monad_models" # replace with the name of the chain
 version: "1.0.0"
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-profile: "<evm_chain>" # replace with the name of the chain
+profile: "monad" # replace with the name of the chain
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
-model-paths: ["models"]
+model-paths: ["models"] 
 analysis-paths: ["analysis"]
 test-paths: ["tests"]
 seed-paths: ["data"]
@@ -26,10 +26,8 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 tests:
-  <evm_chain>_models: # replace with the name of the chain
+  monad_models: # replace with the name of the chain
     +store_failures: true # all tests
-  fsc_evm:
-    +store_failures: true
 
 on-run-start:
   - "{{ fsc_evm.create_sps() }}"
@@ -41,7 +39,7 @@ on-run-end:
 dispatch:
   - macro_namespace: dbt
     search_order:
-      - <evm_chain>-models
+      - monad-models
       - dbt_snowflake_query_tags
       - dbt
 
@@ -53,33 +51,22 @@ query-comment:
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
 models:
-  <evm_chain>_models: # replace with the name of the chain
+  monad_models: # replace with the name of the chain
     +copy_grants: true
     +persist_docs:
       relation: true
       columns: true
     +on_schema_change: "append_new_columns"
   livequery_models:
+    +enabled: true  # Keep livequery models enabled since you need them
     +materialized: ephemeral
   fsc_evm:
-    +enabled: false # disable fsc_evm package by default
+    +enabled: false # keep fsc_evm package disabled
     +copy_grants: true
     +persist_docs:
       relation: true
       columns: true
     +on_schema_change: "append_new_columns"
-    main_package:
-      +enabled: false # disable main_package by default, enabled other packages as needed
-      core:
-        +enabled: true # enable subpackages, as needed
-      github_actions:
-        +enabled: true
-      labels:
-        +enabled: true
-      prices:
-        +enabled: true
-      utils:
-        +enabled: true
 
 vars:
   "dbt_date:time_zone": GMT
@@ -103,23 +90,32 @@ vars:
   config:
   # The keys correspond to dbt profiles and are case sensitive
     dev:
-      API_INTEGRATION: 
-      EXTERNAL_FUNCTION_URI: 
+      API_INTEGRATION: AWS_MONAD_API_STG_V2
+      EXTERNAL_FUNCTION_URI: byqploe1p2.execute-api.us-east-1.amazonaws.com/stg/
       ROLES:
-        - AWS_LAMBDA_<EVM_CHAIN>_API # replace with the name of the chain
+        - AWS_LAMBDA_MONAD_API # replace with the name of the chain
         - INTERNAL_DEV
 
     prod:
-      API_INTEGRATION: 
-      EXTERNAL_FUNCTION_URI: 
+      API_INTEGRATION: AWS_MONAD_API_PROD_V2
+      EXTERNAL_FUNCTION_URI: t651otge99.execute-api.us-east-1.amazonaws.com/prod/
       ROLES:
-        - AWS_LAMBDA_<EVM_CHAIN>_API # replace with the name of the chain
+        - AWS_LAMBDA_MONAD_API # replace with the name of the chain
         - INTERNAL_DEV
-        - DBT_CLOUD_<EVM_CHAIN> # replace with the name of the chain
+        - DBT_CLOUD_MONAD # replace with the name of the chain
 
 #### STREAMLINE 2.0 END ####
 
 #### FSC_EVM BEGIN ####
+
+  ### GLOBAL VARIABLES BEGIN ###
+  
+  ## REQUIRED
+  GLOBAL_PROD_DB_NAME: "monad"
+  GLOBAL_NODE_SECRET_PATH: "Vault/prod/monad/quicknode/testnet"
+  GLOBAL_BLOCKS_PER_HOUR: 3600
+
+  ### GLOBAL VARIABLES END ###
 
 # Please visit https://github.com/FlipsideCrypto/fsc-evm/wiki for more information on required and optional variables
 

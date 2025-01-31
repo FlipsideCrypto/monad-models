@@ -1,12 +1,12 @@
 ## Repo Set Up
 1. Create a new repository from the [evm-models-template](https://github.com/FlipsideCrypto/evm-models-template)
-2. Update all references to `<evm_chain>` to the new chain name, in lowercase by using find and replace
+2. Update all references to `monad` to the new chain name, in lowercase by using find and replace
 3. Update the fsc-evm package version in `packages.yml` to the latest version
 4. Set up the rest of the dbt project, where applicable, including but not limited to:
     - `dbt_project.yml` (enable/disable packages, vars, etc.)
     - `.github/workflows` (update tags, etc.)
     - `github_actions__workflows.csv` (update schedule, workflows, etc.)
-    - `overview.md` (update `<evm_chain>`, table references, docs etc.)
+    - `overview.md` (update `monad`, table references, docs etc.)
     - `sources.yml` (update schemas, tables etc.)
     - `requirements.txt` (update dependencies)
     - other files where applicable
