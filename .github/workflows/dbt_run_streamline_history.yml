@@ -3,8 +3,9 @@ run-name: dbt_run_streamline_history
 
 on:
   workflow_dispatch:
-    branches:
-      - "main"
+  schedule:
+    # Daily at 13:30 UTC
+    - cron: '30 13 * * *'
 
 env:
   DBT_PROFILES_DIR: ./
