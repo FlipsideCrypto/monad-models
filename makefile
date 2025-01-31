@@ -24,7 +24,7 @@ deploy_streamline_requests:
 deploy_github_actions:
 	dbt run -s livequery_models.deploy.marketplace.github --vars '{"UPDATE_UDFS_AND_SPS":True}' -t $(DBT_TARGET)
 	dbt seed -s github_actions__workflows -t $(DBT_TARGET)
-	dbt run -m "fsc_evm,tag:gha_tasks" --full-refresh -t $(DBT_TARGET)
+	dbt run -m models/github_actions --full-refresh -t $(DBT_TARGET)
 ifeq ($(findstring dev,$(DBT_TARGET)),dev)
 	dbt run-operation fsc_utils.create_gha_tasks --vars '{"START_GHA_TASKS":False}' -t $(DBT_TARGET)
 else
@@ -34,7 +34,7 @@ endif
 deploy_new_github_action:
 	dbt run-operation fsc_evm.drop_github_actions_schema -t $(DBT_TARGET)
 	dbt seed -s github_actions__workflows -t $(DBT_TARGET)
-	dbt run -m "fsc_evm,tag:gha_tasks" --full-refresh -t $(DBT_TARGET)
+	dbt run -m models/github_actions --full-refresh -t $(DBT_TARGET)
 ifeq ($(findstring dev,$(DBT_TARGET)),dev)
 	dbt run-operation fsc_utils.create_gha_tasks --vars '{"START_GHA_TASKS":False}' -t $(DBT_TARGET)
 else

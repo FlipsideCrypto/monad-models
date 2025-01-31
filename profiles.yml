@@ -1,4 +1,4 @@
-<evm_chain>:
+monad:
   target: prod
   outputs:
     dev:
