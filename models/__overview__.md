@@ -1,6 +1,6 @@
 {% docs __overview__ %}
 
-# Welcome to the Flipside Crypto Core Models Documentation!
+# Welcome to the Flipside Crypto Monad Models Documentation!
 
 ## **What does this documentation cover?**
 The documentation included here details the design of the Core tables and views available via [Flipside Crypto.](https://flipsidecrypto.xyz/) For more information on how these models are built, please see [the github repository.](https://github.com/FlipsideCrypto/monad-models)
@@ -16,22 +16,13 @@ There is more information on how to use dbt docs in the last section of this doc
 
 **Click on the links below to jump to the documentation for each schema.**
 
-### Core Tables (monad.core)
-
-**Dimension Tables:**
-- [dim_labels](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__dim_labels)
+### Testnet Tables (monad.testnet)
 
 **Fact Tables:**
 - [fact_blocks](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_blocks)
 - [fact_event_logs](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_event_logs)
 - [fact_transactions](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_transactions)
 - [fact_traces](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_traces)
-
-### Price Tables (monad.price)
-- [dim_asset_metadata](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__dim_asset_metadata)
-- [fact_prices_ohlc_hourly](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__fact_prices_ohlc_hourly)
-- [ez_asset_metadata](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__ez_asset_metadata)
-- [ez_prices_hourly](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__ez_prices_hourly)
 
 ## **Helpful User-Defined Functions (UDFs)**
 
