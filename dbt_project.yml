@@ -67,8 +67,6 @@ models:
       relation: true
       columns: true
     +on_schema_change: "append_new_columns"
-    github_actions:
-      +enabled: true
 
 vars:
   "dbt_date:time_zone": GMT
