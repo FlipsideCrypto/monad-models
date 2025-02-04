@@ -9,7 +9,8 @@
         "sql_limit" :"2000000",
         "producer_batch_size" :"7200",
         "worker_batch_size" :"1800",
-        "sql_source" :"{{this.identifier}}" }
+        "sql_source" :"{{this.identifier}}",
+        "exploded_key": tojson(["result"]) }
     ),
     tags = ['streamline_testnet_history']
 ) }}
