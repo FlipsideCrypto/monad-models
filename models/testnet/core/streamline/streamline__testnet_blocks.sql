@@ -3,6 +3,8 @@
     tags = ['streamline_testnet_complete']
 ) }}
 
+select * 
+from (
 SELECT
     _id,
     (
@@ -22,3 +24,5 @@ WHERE
         FROM
             {{ ref("streamline__get_testnet_chainhead") }}
     )
+)
+where block_number > 0
