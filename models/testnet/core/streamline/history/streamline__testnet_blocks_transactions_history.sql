@@ -10,6 +10,7 @@
         "producer_batch_size" :"7200",
         "worker_batch_size" :"1800",
         "sql_source" :"{{this.identifier}}",
+        "async_concurrent_requests" :"1",
         "exploded_key": tojson(["result", "result.transactions"]) }
     ),
     tags = ['streamline_testnet_history']

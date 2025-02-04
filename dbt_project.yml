@@ -112,8 +112,8 @@ vars:
   
   ## REQUIRED
   GLOBAL_PROD_DB_NAME: "monad"
-  GLOBAL_NODE_SECRET_PATH: "Vault/prod/monad/foundation/testnet"
-  
+  GLOBAL_NODE_SECRET_PATH: "Vault/prod/monad/quicknode/testnet"
+
   GLOBAL_BLOCKS_PER_HOUR: 3600
 
   ### GLOBAL VARIABLES END ###
