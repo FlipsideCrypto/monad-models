@@ -10,7 +10,7 @@
         "producer_batch_size" :"1800",
         "worker_batch_size" :"1800",
         "sql_source" :"{{this.identifier}}",
-        "exploded_key": tojson(["result"]) } }
+        "exploded_key": tojson(["result"]) }
     ),
     tags = ['streamline_testnet_realtime']
 ) }}
