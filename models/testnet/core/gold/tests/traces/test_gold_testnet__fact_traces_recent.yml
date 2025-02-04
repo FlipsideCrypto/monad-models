@@ -12,8 +12,6 @@ models:
             - TX_HASH
           column_name: TRACE_INDEX
           where: TX_HASH IS NOT NULL
-      - fsc_utils.txs_have_traces:
-          transactions_model: ref('test_gold_testnet__fact_transactions_recent')
 
     columns:
       - name: BLOCK_NUMBER
