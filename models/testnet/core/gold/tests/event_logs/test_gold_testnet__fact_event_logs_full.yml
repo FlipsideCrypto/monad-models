@@ -12,7 +12,7 @@ models:
             - BLOCK_NUMBER
           column_name: EVENT_INDEX
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
-      - events_match_txs:
+      - fsc_utils.events_match_txs:
           transactions_model: ref('test_gold_testnet__fact_transactions_full')
 
     columns:

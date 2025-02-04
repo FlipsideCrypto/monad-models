@@ -12,7 +12,7 @@ models:
             - TX_HASH
           column_name: TRACE_INDEX
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
-      - txs_have_traces:
+      - fsc_utils.txs_have_traces:
           transactions_model: ref('test_gold_testnet__fact_transactions_full')
 
     columns:
