@@ -40,4 +40,5 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_receipts
+where array_index is not null
 QUALIFY ROW_NUMBER() OVER (PARTITION BY receipts_id ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
