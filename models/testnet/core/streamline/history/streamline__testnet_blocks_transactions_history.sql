@@ -27,6 +27,7 @@ WITH to_do AS (
 ready_blocks AS (
     SELECT block_number
     FROM to_do
+    where block_number < (select block_number from {{ ref("_testnet_block_lookback") }})
 )
 SELECT
     block_number,
