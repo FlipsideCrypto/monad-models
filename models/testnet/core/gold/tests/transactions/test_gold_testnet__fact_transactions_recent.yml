@@ -10,6 +10,8 @@ models:
           partition_by:
             - BLOCK_NUMBER
           column_name: TX_POSITION
+      - fsc_evm.txs_match_blocks:
+          blocks_model: ref('test_gold_testnet__fact_blocks_recent')
 
     columns:
       - name: BLOCK_NUMBER
