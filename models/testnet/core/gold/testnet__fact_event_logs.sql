@@ -18,7 +18,7 @@ WITH base AS (
     WHERE
         1 = 1
         AND ARRAY_SIZE(receipts_json :logs) > 0
-
+        AND ROUND(block_number,-3) != 12354000
 {% if is_incremental() %}
 AND modified_timestamp > (
     SELECT
