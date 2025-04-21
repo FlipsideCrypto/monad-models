@@ -11,10 +11,10 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_file_registration_history(
-                start_time => DATEADD('day', -3, CURRENT_TIMESTAMP()),
+                start_time => DATEADD('hour', -3, SYSDATE()),
                 table_name => '{{ source( "bronze_streamline", "testnet_traces") }}')
             ) A
-        where LAST_MODIFIED > dateadd('day',-4,sysdate())
+        where LAST_MODIFIED > dateadd('day',-1,sysdate())
 )
 SELECT
     s.*,
