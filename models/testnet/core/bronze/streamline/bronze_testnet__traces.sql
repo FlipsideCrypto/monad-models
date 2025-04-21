@@ -14,6 +14,7 @@ WITH meta AS (
                 start_time => DATEADD('day', -3, CURRENT_TIMESTAMP()),
                 table_name => '{{ source( "bronze_streamline", "testnet_traces") }}')
             ) A
+        where LAST_MODIFIED > dateadd('day',-4,sysdate())
 )
 SELECT
     s.*,
