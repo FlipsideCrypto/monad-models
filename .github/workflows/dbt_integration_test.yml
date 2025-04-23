@@ -19,6 +19,6 @@ jobs:
   notify-failure:
     needs: [called_workflow_template]
     if: failure()
-    uses: ./.github/workflows/slack_notify.yml
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/slack_notify.yml@main
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -46,7 +46,7 @@ jobs:
   notify-failure:
     needs: [run_dbt_jobs_refresh]
     if: failure()
-    uses: ./.github/workflows/slack_notify.yml
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/slack_notify.yml@main
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -77,6 +77,6 @@ jobs:
   notify-failure2:
     needs: [run_dbt_jobs_udfs]
     if: failure()
-    uses: ./.github/workflows/slack_notify.yml
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/slack_notify.yml@main
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
