@@ -43,3 +43,10 @@ jobs:
       - name: Deploy New Github Actions
         run: |
           make deploy_new_github_action DBT_TARGET=prod
+
+  notify-failure:
+    needs: [run_dbt_jobs]
+    if: failure()
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/slack_notify.yml@main
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
