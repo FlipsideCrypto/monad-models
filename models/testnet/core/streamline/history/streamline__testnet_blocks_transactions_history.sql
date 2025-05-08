@@ -7,10 +7,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params ={ "external_table" :"testnet_blocks_transactions",
         "sql_limit" :"2000000",
-        "producer_batch_size" :"7200",
-        "worker_batch_size" :"1800",
+        "producer_batch_size" :"20000",
+        "worker_batch_size" :"2000",
         "sql_source" :"{{this.identifier}}",
-        "async_concurrent_requests" :"1",
+        "async_concurrent_requests" :"10",
         "exploded_key": tojson(["result", "result.transactions"]) }
     ),
     tags = ['streamline_testnet_history']
