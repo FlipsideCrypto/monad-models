@@ -8,7 +8,7 @@ from (
 SELECT
     _id,
     (
-        ({{ var('GLOBAL_BLOCKS_PER_HOUR',0) }} / 60) * {{ var('GLOBAL_CHAINHEAD_DELAY',3) }}
+        ({{ var('GLOBAL_BLOCKS_PER_HOUR',0) }} / 60) * {{ var('GLOBAL_CHAINHEAD_DELAY',10) }}
     ) :: INT AS block_number_delay, --minute-based block delay
     (_id - block_number_delay) :: INT AS block_number,
     utils.udf_int_to_hex(block_number) AS block_number_hex
