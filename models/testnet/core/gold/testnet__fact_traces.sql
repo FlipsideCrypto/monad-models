@@ -205,7 +205,7 @@ json_traces AS (
                             t.origin_function_signature,
                             t.from_address AS origin_from_address,
                             t.to_address AS origin_to_address,
-                            t.tx_position AS tx_position,
+                            f.tx_position AS tx_position,
                             f.trace_index,
                             f.from_address AS from_address,
                             f.to_address AS to_address,
@@ -242,14 +242,6 @@ AND t.modified_timestamp >= (
 )
 
 {% if is_incremental() %},
-overflow_blocks AS (
-    SELECT
-        DISTINCT block_number
-    FROM
-        silver_traces
-    WHERE
-        source = 'overflow'
-),
 heal_missing_data AS (
     SELECT
         t.block_number,
@@ -351,36 +343,6 @@ SELECT
     tx_succeeded_heal AS tx_succeeded
 FROM
     heal_missing_data
-UNION ALL
-SELECT
-    block_number,
-    tx_hash,
-    block_timestamp,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    tx_position,
-    trace_index,
-    from_address,
-    to_address,
-    value_hex,
-    value_precise_raw,
-    value_precise,
-    VALUE,
-    gas,
-    gas_used,
-    input,
-    output,
-    TYPE,
-    sub_traces,
-    error_reason,
-    revert_reason,
-    trace_succeeded,
-    trace_address,
-    tx_succeeded
-FROM
-    {{ this }}
-    JOIN overflow_blocks USING (block_number)
 {% endif %}
 )
 SELECT
