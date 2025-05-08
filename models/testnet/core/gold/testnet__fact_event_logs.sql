@@ -109,7 +109,7 @@ AND txs.modified_timestamp >= (
 missing_data AS (
     SELECT
         t.block_number,
-        b.block_timestamp AS block_timestamp_heal,
+        txs.block_timestamp AS block_timestamp_heal,
         t.tx_hash,
         t.tx_position,
         t.event_index,
@@ -132,9 +132,6 @@ missing_data AS (
         txs
         ON t.tx_hash = txs.tx_hash
         AND t.block_number = txs.block_number
-        LEFT JOIN {{ ref('testnet__fact_blocks') }}
-        b
-        ON t.block_number = b.block_number
     WHERE
         t.block_timestamp IS NULL
         OR t.origin_function_signature IS NULL
