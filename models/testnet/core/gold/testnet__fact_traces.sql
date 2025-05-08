@@ -281,7 +281,7 @@ heal_missing_data AS (
     FROM
         {{ this }}
         t
-        JOIN {{ ref('testnet__fact_transactions') }}
+        LEFT JOIN {{ ref('testnet__fact_transactions') }}
         txs
         ON t.tx_position = txs.tx_position
         AND t.block_number = txs.block_number
