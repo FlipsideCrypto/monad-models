@@ -21,7 +21,6 @@ WITH base AS (
 
 {% if is_incremental() %}
 AND (
-    -- New contracts we haven't tried yet
     contract_address NOT IN (
         SELECT
             contract_address
@@ -29,7 +28,7 @@ AND (
             {{ this }}
     )
     OR
-    -- Contracts that failed and we want to retry
+    --Retries once a month, with a max of 3 retries
     contract_address IN (
         SELECT
             contract_address
@@ -37,7 +36,7 @@ AND (
             {{ this }}
         WHERE 
             read_result is null
-        AND modified_timestamp <= SYSDATE() - INTERVAL '1 MONTH'
+        AND modified_timestamp <= SYSDATE() - INTERVAL '1 MONTH' 
         AND retry_count < 3
     )
 )
