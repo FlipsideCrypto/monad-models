@@ -3,8 +3,8 @@
 
 {{ config(
     materialized = 'incremental',
-    unique_key = "contract_address",
-    full_refresh = false,
+    merge_exclude_columns = ["_inserted_timestamp"],
+    unique_key = ["token_reads_id"],
     tags = ['bronze_testnet', 'recent_test', 'contracts']
 ) }}
 
@@ -19,18 +19,34 @@ WITH base AS (
         total_event_count >= 25
 
 {% if is_incremental() %}
-AND contract_address NOT IN (
-    SELECT
-        contract_address
-    FROM
-        {{ this }}
+AND (
+    -- New contracts we haven't tried yet
+    contract_address NOT IN (
+        SELECT
+            contract_address
+        FROM
+            {{ this }}
+    )
+    OR
+    -- Contracts that failed and we want to retry
+    contract_address IN (
+        SELECT
+            contract_address
+        FROM
+            {{ this }}
+        WHERE 
+            read_result is null
+        AND modified_timestamp <= SYSDATE() - INTERVAL '1 MONTH'
+        AND retry_count < 3
+    )
 )
 {% endif %}
 ORDER BY
     total_event_count DESC
 LIMIT
     200
-), function_sigs AS (
+), 
+function_sigs AS (
     SELECT
         '0x313ce567' AS function_sig,
         'decimals' AS function_name
@@ -110,21 +126,48 @@ node_call AS (
         LATERAL FLATTEN (
             input => response :data
         )
+),
+transformed_responses AS (
+    SELECT
+        SPLIT_PART(call_id, '-', 1) AS contract_address,
+        SPLIT_PART(call_id, '-', 3) AS block_number,
+        LEFT(SPLIT_PART(call_id, '-', 2), 10) AS function_sig,
+        call_id,
+        read_result
+    FROM
+        flat_responses
+),
+retry_counts AS (
+    SELECT
+        tr.contract_address,
+        tr.function_sig,
+        {% if is_incremental() %}
+        COALESCE(prev.retry_count + 1, 1) as retry_count
+        {% else %}
+        1 as retry_count
+        {% endif %}
+    FROM transformed_responses tr
+    {% if is_incremental() %}
+    LEFT JOIN {{ this }} prev
+        ON prev.contract_address = tr.contract_address
+        AND prev.function_sig = tr.function_sig
+    {% endif %}
 )
 SELECT
-    SPLIT_PART(
-        call_id,
-        '-',
-        1
-    ) AS contract_address,
-    SPLIT_PART(
-        call_id,
-        '-',
-        3
-    ) AS block_number,
-    LEFT(SPLIT_PART(call_id, '-', 2), 10) AS function_sig,
+    tr.contract_address,
+    tr.block_number,
+    tr.function_sig,
     NULL AS function_input,
-    read_result,
-    SYSDATE() :: TIMESTAMP AS _inserted_timestamp
+    tr.read_result,
+    SYSDATE() :: TIMESTAMP AS _inserted_timestamp,
+    SYSDATE() :: TIMESTAMP AS modified_timestamp,
+    rc.retry_count,
+    {{ dbt_utils.generate_surrogate_key(
+        ['tr.contract_address', 'tr.function_sig']
+    ) }} AS token_reads_id,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
-    flat_responses
+    transformed_responses tr
+    LEFT JOIN retry_counts rc
+        ON tr.contract_address = rc.contract_address
+        AND tr.function_sig = rc.function_sig
