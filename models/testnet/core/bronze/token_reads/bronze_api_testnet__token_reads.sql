@@ -4,6 +4,7 @@
 {{ config(
     materialized = 'incremental',
     merge_exclude_columns = ["_inserted_timestamp"],
+    full_refresh = false,
     unique_key = ["token_reads_id"],
     tags = ['bronze_testnet', 'recent_test', 'contracts']
 ) }}
@@ -142,9 +143,9 @@ retry_counts AS (
         tr.contract_address,
         tr.function_sig,
         {% if is_incremental() %}
-        COALESCE(prev.retry_count + 1, 1) as retry_count
+        COALESCE(prev.retry_count + 1, 0) as retry_count
         {% else %}
-        1 as retry_count
+        0 as retry_count
         {% endif %}
     FROM transformed_responses tr
     {% if is_incremental() %}
