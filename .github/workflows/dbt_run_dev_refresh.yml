@@ -45,7 +45,9 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    environment: workflow_dev
+    needs: run_dbt_jobs_refresh
+    if: failure()
+    environment: workflow_prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -92,7 +94,9 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    environment: workflow_dev
+    needs: run_dbt_jobs_udfs
+    if: failure()
+    environment: workflow_prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3

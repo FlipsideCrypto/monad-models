@@ -46,6 +46,8 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
+    needs: run_dbt_jobs
+    if: failure()
     environment: workflow_prod
     steps:
       - name: Checkout
