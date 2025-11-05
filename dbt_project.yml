@@ -61,12 +61,39 @@ models:
     +enabled: true  # Keep livequery models enabled since you need them
     +materialized: ephemeral
   fsc_evm:
-    +enabled: false # keep fsc_evm package disabled
+    +enabled: false # disable fsc_evm package by default
     +copy_grants: true
     +persist_docs:
       relation: true
       columns: true
     +on_schema_change: "append_new_columns"
+    +post-hook: "{{ fsc_evm.enable_change_tracking() }}"
+    main_package:
+      +enabled: false # disable main_package by default, enabled other packages as needed
+      admin:
+        +enabled: true
+      core:
+        +enabled: true # enable subpackages, as needed
+      github_actions:
+        +enabled: true
+      labels:
+        +enabled: true
+      observability:
+        +enabled: false
+      prices:
+        +enabled: true
+      token_reads:
+        +enabled: true
+      utils:
+        +enabled: true
+    decoder_package:
+      +enabled: false
+    curated_package:
+      +enabled: false
+    balances_package:
+      +enabled: false
+    scores_package:
+      +enabled: false
 
 vars:
   "dbt_date:time_zone": GMT
@@ -74,11 +101,8 @@ vars:
   STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
   UPDATE_UDFS_AND_SPS: False
   UPDATE_SNOWFLAKE_TAGS: True
-  OBSERV_FULL_TEST: False
-  WAIT: 0
   HEAL_MODEL: False
   HEAL_MODELS: []
-  START_GHA_TASKS: False
 
 #### STREAMLINE 2.0 BEGIN ####
 
