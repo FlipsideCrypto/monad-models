@@ -3,40 +3,20 @@ run-name: ${{ github.event.inputs.branch }}
 
 on:
   workflow_dispatch:
+    branches:
+      - "main"
+    inputs:
+      environment:
+        type: string
+        required: true
 
 concurrency: ${{ github.workflow }}
 
 jobs:
   called_workflow_template:
-    uses: FlipsideCrypto/analytics-workflow-templates/.github/workflows/dbt.yml@main
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/dbt_run_template_integration_test.yml@main
     with:
-      command: >
+      target: ${{ inputs.environment }}
+      command: |
         dbt test --selector 'integration_tests'
-      environment:  ${{ github.ref == 'refs/heads/main' && 'workflow_prod' || 'workflow_dev' }}
-      warehouse: ${{ vars.WAREHOUSE }}
     secrets: inherit
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: run_dbt_jobs
-    if: failure()
-    environment: workflow_prod
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          
-      - name: Install dependencies
-        run: |
-          pip install requests
-          pip install -r requirements.txt
-          dbt deps
-          
-      - name: Send Slack notification
-        run: python macros/python/slack_alert.py
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

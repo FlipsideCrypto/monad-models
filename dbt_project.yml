@@ -79,7 +79,7 @@ models:
       labels:
         +enabled: true
       observability:
-        +enabled: false
+        +enabled: true
       prices:
         +enabled: true
       token_reads:

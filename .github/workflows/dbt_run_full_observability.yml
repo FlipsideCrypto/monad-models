@@ -1,0 +1,23 @@
+name: dbt_run_full_observability
+run-name: dbt_run_full_observability
+
+on:
+  workflow_dispatch:
+    branches:
+      - "main"
+    
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  called_workflow_template:
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/dbt_run_template.yml@main
+    with:
+      warehouse: DBT_EMERGENCY
+      command_name: Run Observability Models
+      command: |
+        dbt run --threads 2 --vars '{"MAIN_OBSERV_FULL_TEST_ENABLED":True}' -m "fsc_evm,tag:observability"
+    secrets: inherit
+  
+
+
