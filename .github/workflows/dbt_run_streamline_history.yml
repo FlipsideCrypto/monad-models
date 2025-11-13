@@ -6,65 +6,14 @@ on:
     branches:
       - "main"
 
-env:
-  DBT_PROFILES_DIR: ./
-
-  ACCOUNT: "${{ vars.ACCOUNT }}"
-  ROLE: "${{ vars.ROLE }}"
-  USER: "${{ vars.USER }}"
-  PASSWORD: "${{ secrets.PASSWORD }}"
-  REGION: "${{ vars.REGION }}"
-  DATABASE: "${{ vars.DATABASE }}"
-  WAREHOUSE: "${{ vars.WAREHOUSE }}"
-  SCHEMA: "${{ vars.SCHEMA }}"
-
 concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  run_dbt_jobs:
-    runs-on: ubuntu-latest
-    environment:
-      name: workflow_prod
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          cache: "pip"
-
-      - name: install dependencies
-        run: |
-          pip install -r requirements.txt
-          dbt deps
-          
-      - name: Run History Models
-        run: |
-          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m "monad_models,tag:streamline_testnet_complete" "monad_models,tag:streamline_testnet_history"
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: run_dbt_jobs
-    if: failure()
-    environment: workflow_prod
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          
-      - name: Install dependencies
-        run: |
-          pip install requests
-          pip install -r requirements.txt
-          dbt deps
-          
-      - name: Send Slack notification
-        run: python macros/python/slack_alert.py
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  called_workflow_template:
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/dbt_run_template.yml@main
+    with:
+      command_name: Run History Models
+      command: |
+        dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m "fsc_evm,tag:streamline,tag:core,tag:complete" "fsc_evm,tag:streamline,tag:core,tag:history" --exclude "fsc_evm,tag:receipts_by_hash"
+    secrets: inherit

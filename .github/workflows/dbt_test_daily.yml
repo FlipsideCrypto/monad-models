@@ -6,69 +6,18 @@ on:
     branches:
       - "main"
     
-env:
-  DBT_PROFILES_DIR: ./
-
-  ACCOUNT: "${{ vars.ACCOUNT }}"
-  ROLE: "${{ vars.ROLE }}"
-  USER: "${{ vars.USER }}"
-  PASSWORD: "${{ secrets.PASSWORD }}"
-  REGION: "${{ vars.REGION }}"
-  DATABASE: "${{ vars.DATABASE }}"
-  WAREHOUSE: "${{ vars.WAREHOUSE }}"
-  SCHEMA: "${{ vars.SCHEMA }}"
-
 concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  run_dbt_jobs:
-    runs-on: ubuntu-latest
-    environment: 
-      name: workflow_test
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          cache: "pip"
-          
-      - name: install dependencies
-        run: |
-          pip install -r requirements.txt
-          dbt deps
-        
-      - name: Build Daily Testing Views
-        run: |
-          dbt run -m "fsc_evm,tag:daily_test"
-      
-      - name: Run Daily Tests
-        run: |
-          dbt test -m "fsc_evm,tag:daily_test"
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: run_dbt_jobs
-    if: failure()
-    environment: workflow_prod
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          
-      - name: Install dependencies
-        run: |
-          pip install requests
-          pip install -r requirements.txt
-          dbt deps
-          
-      - name: Send Slack notification
-        run: python macros/python/slack_alert.py
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  called_workflow_template:
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/dbt_run_template.yml@main
+    with:
+      target: test
+      command_name: Build Daily Testing Views
+      command: |
+        dbt run -m "fsc_evm,tag:daily_test"
+      command_name_2: Run Daily Tests (all tests excluding full, recent and misc. others)
+      command_2: |
+        dbt test --exclude "fsc_evm,tag:full_test" "fsc_evm,tag:recent_test" "fsc_evm,tag:gha_tasks" "fsc_evm,tag:observability" "$PROJECT_NAME,tag:curated" "fsc_evm,tag:curated" livequery_models main_package.core.bronze.token_reads
+    secrets: inherit
