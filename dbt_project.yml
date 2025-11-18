@@ -28,6 +28,8 @@ clean-targets: # directories to be removed by `dbt clean`
 tests:
   monad_models: # replace with the name of the chain
     +store_failures: true # all tests
+  fsc_evm:
+    +store_failures: true
 
 on-run-start:
   - "{{ fsc_evm.create_sps() }}"
