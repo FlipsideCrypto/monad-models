@@ -102,6 +102,8 @@ models:
           +enabled: true
         dex:
           +enabled: true
+        lending:
+          +enabled: true
     balances_package:
       +enabled: false
       erc20:
