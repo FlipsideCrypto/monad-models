@@ -21,7 +21,6 @@ There is more information on how to use dbt docs in the last section of this doc
 **Dimension Tables:**
 - [dim_labels](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__dim_labels)
 - [dim_contracts](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__dim_contracts)
-- [dim_contract_abis](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__dim_contract_abis)
 
 **Fact Tables:**
 - [fact_blocks](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_blocks)
@@ -30,7 +29,6 @@ There is more information on how to use dbt docs in the last section of this doc
 - [fact_traces](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__fact_traces)
 
 **Convenience Tables:**
-- [ez_decoded_event_logs](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__ez_decoded_event_logs)
 - [ez_native_transfers](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__ez_native_transfers)
 - [ez_token_transfers](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.core__ez_token_transfers)
   
