@@ -1,0 +1,19 @@
+name: dbt_run_scheduled_curated
+run-name: dbt_run_scheduled_curated
+
+on:
+  workflow_dispatch:
+    branches:
+      - "main"
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  called_workflow_template:
+    uses: FlipsideCrypto/fsc-evm/.github/workflows/dbt_run_template.yml@main
+    with:
+      command_name: Run Curated Models
+      command: |
+        dbt run -m "$PROJECT_NAME,tag:curated" "fsc_evm,tag:curated"
+    secrets: inherit
