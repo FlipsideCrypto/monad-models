@@ -22,6 +22,7 @@ sources:
       - name: balances_erc20
       - name: balances_native
       - name: contract_abis
+      - name: stablecoin_reads
   - name: crosschain_silver
     database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME').upper() else 'crosschain_dev' }}"
     schema: silver
@@ -33,6 +34,12 @@ sources:
       - name: complete_provider_prices
       - name: complete_token_asset_metadata
       - name: complete_token_prices
+      - name: tokens_stablecoins
+  - name: crosschain_gold
+    database: crosschain
+    schema: core
+    tables:
+      - name: dim_dates
   - name: bronze_api
     database: "{{ target.database }}"
     schema: bronze_api
