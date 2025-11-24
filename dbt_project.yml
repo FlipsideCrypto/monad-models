@@ -90,6 +90,10 @@ models:
         +enabled: true
     decoder_package:
       +enabled: false
+      abis:
+        +enabled: true
+      decoded_logs:
+        +enabled: true
     curated_package:
       +enabled: false
     balances_package:
