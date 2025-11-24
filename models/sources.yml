@@ -1,11 +1,6 @@
 version: 2 
 
 sources:
-  - name: github_actions
-    database: "{{ target.database }}"
-    schema: github_actions
-    tables:
-      - name: workflows
   - name: bronze_streamline
     database: streamline
     schema: >-
@@ -48,8 +43,31 @@ sources:
     schema: bronze_public
     tables:
       - name: user_abis
-  - name: silver
+  - name: complete_streamline
+    database: "{{ target.database }}"
+    schema: streamline
+    tables:
+      - name: complete_contract_abis
+  - name: github_actions
+    database: "{{ target.database }}"
+    schema: github_actions
+    tables:
+      - name: workflows
+  - name: external_gold_defillama
+    database: external
+    schema: defillama
+    tables:
+      - name: dim_chains
+  - name: abis_silver
     database: "{{ target.database }}"
     schema: silver
     tables:
       - name: verified_abis
+      - name: complete_event_abis
+  - name: fsc_evm_admin
+    database: >-
+      {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
+    schema: admin
+    tables:
+      - name: _master_keys
+      - name: rpc_node_logs
