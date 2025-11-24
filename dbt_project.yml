@@ -96,6 +96,8 @@ models:
         +enabled: true
     curated_package:
       +enabled: false
+      stats:
+        +enabled: true
       defi:
         +enabled: false
         bridge:
