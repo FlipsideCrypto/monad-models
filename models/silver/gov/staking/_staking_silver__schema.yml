@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: silver__staking_events
+    description: >
+      Silver layer view containing all staking events from the Monad staking precompile contract.
+      Filters core__ez_decoded_event_logs to the staking contract address.
+      This model serves as the base for all gold staking models.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the staking event occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the block containing the staking event
+
+      - name: TX_HASH
+        description: Transaction hash containing the staking event
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Address of the staking precompile contract (0x0000000000000000000000000000000000000800)
+
+      - name: EVENT_NAME
+        description: >
+          Name of the staking event. One of: ValidatorRewarded, ValidatorCreated,
+          ValidatorStatusChanged, Delegate, Undelegate, Withdraw, ClaimRewards,
+          CommissionChanged, EpochChanged
+
+      - name: DECODED_LOG
+        description: Flattened decoded event data containing event-specific parameters
+
+      - name: FULL_DECODED_LOG
+        description: Complete decoded event log with full structure
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature of the originating transaction
+
+      - name: TX_SUCCEEDED
+        description: Whether the transaction succeeded
+
+      - name: STAKING_EVENTS_ID
+        description: Unique identifier for this staking event record
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: silver__staking_snapshot_validator_set
+    description: >
+      Snapshot validator set for each epoch, fetched via LiveQuery from the staking precompile.
+      The snapshot validator set determines which validators are eligible for producing blocks
+      in that epoch. Uses getSnapshotValidatorSet(uint32 startIndex) to paginate through all validators.
+      Queries at epoch_start_block from gov__dim_staking_epochs.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number for this snapshot
+
+      - name: EPOCH_START_BLOCK
+        description: Block number where the epoch started (from dim_staking_epochs)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator in the snapshot set
+
+      - name: VALIDATOR_POSITION
+        description: Position/rank of the validator in the snapshot set
+
+      - name: SNAPSHOT_VALIDATOR_SET_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified

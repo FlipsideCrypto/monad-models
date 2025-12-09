@@ -1,0 +1,745 @@
+version: 2
+
+models:
+  - name: gov__fact_staking_validators_created
+    description: >
+      Records of new validator creation events from the Monad staking precompile.
+      Emitted when a new validator is added via the addValidator function.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the validator was created
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp when the validator was created
+
+      - name: TX_HASH
+        description: Transaction hash of the validator creation
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (ValidatorCreated)
+
+      - name: VALIDATOR_ID
+        description: Unique numeric identifier assigned to the validator
+
+      - name: AUTH_ADDRESS
+        description: Authorized address associated with the validator
+
+      - name: COMMISSION
+        description: Initial commission rate set for the validator
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (addValidator)
+
+      - name: FACT_STAKING_VALIDATORS_CREATED_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_delegations
+    description: >
+      Records of delegation events from the Monad staking precompile.
+      Emitted when a delegator increases their stake to a validator via the delegate function.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the delegation occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the delegation
+
+      - name: TX_HASH
+        description: Transaction hash of the delegation
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (Delegate)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator receiving the delegation
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator
+
+      - name: AMOUNT_RAW
+        description: Raw delegation amount in wei
+
+      - name: AMOUNT
+        description: Delegation amount in MON (adjusted for 18 decimals)
+
+      - name: ACTIVATION_EPOCH
+        description: Epoch when the delegation becomes active
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (delegate)
+
+      - name: FACT_STAKING_DELEGATIONS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_undelegations
+    description: >
+      Records of undelegation events from the Monad staking precompile.
+      Emitted when a delegator initiates withdrawal of their stake via the undelegate function.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the undelegation was initiated
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the undelegation
+
+      - name: TX_HASH
+        description: Transaction hash of the undelegation
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (Undelegate)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from which stake is being withdrawn
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator initiating undelegation
+
+      - name: WITHDRAW_ID
+        description: Unique identifier for this withdrawal request (0-255)
+
+      - name: AMOUNT_RAW
+        description: Raw undelegation amount in wei
+
+      - name: AMOUNT
+        description: Undelegation amount in MON (adjusted for 18 decimals)
+
+      - name: ACTIVATION_EPOCH
+        description: Epoch when the undelegation request becomes eligible for withdrawal
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (undelegate)
+
+      - name: FACT_STAKING_UNDELEGATIONS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_withdrawals
+    description: >
+      Records of withdrawal completion events from the Monad staking precompile.
+      Emitted when a delegator completes their withdrawal via the withdraw function.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the withdrawal was completed
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the withdrawal
+
+      - name: TX_HASH
+        description: Transaction hash of the withdrawal
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (Withdraw)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from which stake was withdrawn
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator receiving the withdrawal
+
+      - name: WITHDRAW_ID
+        description: Identifier of the withdrawal request being completed
+
+      - name: AMOUNT_RAW
+        description: Raw withdrawal amount in wei
+
+      - name: AMOUNT
+        description: Withdrawal amount in MON (adjusted for 18 decimals)
+
+      - name: WITHDRAW_EPOCH
+        description: Epoch when the withdrawal was completed
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (withdraw)
+
+      - name: FACT_STAKING_WITHDRAWALS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_rewards
+    description: >
+      Records of staking reward events from the Monad staking precompile.
+      Combines ValidatorRewarded (block rewards) and ClaimRewards (delegator claims) events.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the reward event occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the reward event
+
+      - name: TX_HASH
+        description: Transaction hash of the reward event
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (ValidatorRewarded or ClaimRewards)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator associated with the reward
+
+      - name: REWARD_SOURCE
+        description: Source address of block rewards (for ValidatorRewarded events)
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator claiming rewards (for ClaimRewards events)
+
+      - name: AMOUNT_RAW
+        description: Raw reward amount in wei
+
+      - name: AMOUNT
+        description: Reward amount in MON (adjusted for 18 decimals)
+
+      - name: EPOCH
+        description: Epoch associated with the reward
+
+      - name: REWARD_TYPE
+        description: Type of reward - 'block_reward' for syscall rewards or 'claimed' for delegator claims
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature
+
+      - name: FACT_STAKING_REWARDS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_commission_changes
+    description: >
+      Records of validator commission change events from the Monad staking precompile.
+      Emitted when a validator modifies their commission rate via the changeCommission function.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the commission change occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the commission change
+
+      - name: TX_HASH
+        description: Transaction hash of the commission change
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (CommissionChanged)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator changing commission
+
+      - name: OLD_COMMISSION
+        description: Previous commission rate
+
+      - name: NEW_COMMISSION
+        description: New commission rate
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (changeCommission)
+
+      - name: FACT_STAKING_COMMISSION_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_validator_status_changes
+    description: >
+      Records of validator status change events from the Monad staking precompile.
+      Emitted during stake/commission changes that affect validator flags.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the status change occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the status change
+
+      - name: TX_HASH
+        description: Transaction hash of the status change
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (ValidatorStatusChanged)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator whose status changed
+
+      - name: FLAGS
+        description: New status flags for the validator
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature
+
+      - name: FACT_STAKING_VALIDATOR_STATUS_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_epoch_changes
+    description: >
+      Records of epoch transition events from the Monad staking precompile.
+      Emitted when epoch changes via the syscallOnEpochChange system call.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the epoch change occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the epoch change
+
+      - name: TX_HASH
+        description: Transaction hash of the epoch change
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address
+
+      - name: EVENT_NAME
+        description: Event name (EpochChanged)
+
+      - name: OLD_EPOCH
+        description: Previous epoch number
+
+      - name: NEW_EPOCH
+        description: New epoch number
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (syscallOnEpochChange)
+
+      - name: FACT_STAKING_EPOCH_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_balances_daily
+    description: >
+      End of day staking balances for each validator-delegator pair.
+      Tracks three balance states: active (delegated), pending withdrawal (undelegated but not withdrawn),
+      and total at risk (both active and pending are subject to slashing until withdrawn).
+      Flow: Delegate increases active -> Undelegate moves active to pending -> Withdraw removes pending.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot (end of day)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator
+
+      - name: ACTIVE_BALANCE
+        description: Currently delegated stake in MON (earning rewards, increased by Delegate, decreased by Undelegate)
+
+      - name: PENDING_WITHDRAWAL_BALANCE
+        description: Undelegated but not yet withdrawn stake in MON (no longer earning rewards, increased by Undelegate, decreased by Withdraw)
+
+      - name: TOTAL_BALANCE_AT_RISK
+        description: Sum of active and pending balances - total stake subject to potential slashing
+
+      - name: DAILY_ACTIVE_CHANGE
+        description: Net change in active balance for this day
+
+      - name: DAILY_PENDING_CHANGE
+        description: Net change in pending withdrawal balance for this day
+
+      - name: FACT_STAKING_BALANCES_DAILY_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_validator_self_stake
+    description: >
+      Daily view showing the percentage of each validator's total stake that is self-staked
+      (where validator auth_address equals delegator_address). Useful for analyzing validator
+      skin-in-the-game and alignment with delegators.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_ADDRESS
+        description: Auth address of the validator
+
+      - name: SELF_ACTIVE_STAKE
+        description: Validator's own active stake in MON
+
+      - name: TOTAL_ACTIVE_STAKE
+        description: Total active stake delegated to this validator from all delegators
+
+      - name: SELF_PENDING_STAKE
+        description: Validator's own pending withdrawal stake in MON
+
+      - name: TOTAL_PENDING_STAKE
+        description: Total pending withdrawal stake for this validator from all delegators
+
+      - name: SELF_STAKE_AT_RISK
+        description: Validator's own total stake at risk (active + pending)
+
+      - name: TOTAL_STAKE_AT_RISK
+        description: Total stake at risk for this validator from all delegators
+
+      - name: SELF_STAKE_PCT_OF_ACTIVE
+        description: Percentage of active stake that is self-staked by the validator
+
+      - name: SELF_STAKE_PCT_OF_TOTAL
+        description: Percentage of total stake at risk that is self-staked by the validator
+
+  - name: gov__dim_staking_epochs
+    description: >
+      Dimension table for staking epochs. Each epoch starts when the EpochChanged event fires.
+      Block ranges are derived from consecutive epoch change events. Epochs are variable length
+      (~5.5 hours) based on consensus rounds, not fixed block counts.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: EPOCH_START_BLOCK
+        description: First block of this epoch (block where EpochChanged event fired)
+
+      - name: EPOCH_END_BLOCK
+        description: Last block of this epoch (block before next epoch started, or current max block for latest epoch)
+
+      - name: EPOCH_BLOCK_COUNT
+        description: Number of blocks in this epoch
+
+      - name: EPOCH_START_TIMESTAMP
+        description: Timestamp when this epoch started
+
+      - name: EPOCH_END_TIMESTAMP
+        description: Timestamp when this epoch ended (NULL for current epoch)
+
+      - name: EPOCH_DURATION_SECONDS
+        description: Duration of epoch in seconds (NULL for current epoch)
+
+      - name: EPOCH_CHANGE_TX_HASH
+        description: Transaction hash of the EpochChanged event that started this epoch
+
+  - name: gov__fact_staking_block_production
+    description: >
+      Block production metrics per validator per epoch. Tracks how many blocks each validator
+      produced along with gas and transaction metrics for performance analysis.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: VALIDATOR_ADDRESS
+        description: Address of the validator (miner) that produced the blocks
+
+      - name: BLOCKS_PRODUCED
+        description: Number of blocks produced by this validator in this epoch
+
+      - name: TOTAL_GAS_USED
+        description: Total gas used across all blocks produced
+
+      - name: AVG_GAS_PER_BLOCK
+        description: Average gas used per block
+
+      - name: TOTAL_TRANSACTIONS
+        description: Total transactions across all blocks produced
+
+      - name: AVG_TX_PER_BLOCK
+        description: Average transactions per block
+
+      - name: FIRST_BLOCK_PRODUCED
+        description: First block number produced by this validator in this epoch
+
+      - name: LAST_BLOCK_PRODUCED
+        description: Last block number produced by this validator in this epoch
+
+      - name: FIRST_BLOCK_TIMESTAMP
+        description: Timestamp of first block produced
+
+      - name: LAST_BLOCK_TIMESTAMP
+        description: Timestamp of last block produced
+
+      - name: FACT_STAKING_BLOCK_PRODUCTION_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_validator_balances_daily
+    description: >
+      Daily wallet balances for validator addresses (auth_address from ValidatorCreated events).
+      Forward fills missing days from ez_balances_native_daily since that table only has rows
+      for days when the balance changed. Includes USD valuation using end of day native price.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_ADDRESS
+        description: Wallet address of the validator (auth_address)
+
+      - name: BALANCE
+        description: Native MON balance (decimal adjusted)
+
+      - name: BALANCE_RAW
+        description: Raw balance in wei
+
+      - name: MON_PRICE_USD
+        description: End of day MON price in USD
+
+      - name: BALANCE_USD
+        description: Balance value in USD
+
+      - name: IS_FORWARD_FILLED
+        description: Whether this row was forward filled from a previous day (no balance change on this day)
+
+      - name: FACT_STAKING_VALIDATOR_BALANCES_DAILY_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_validator_epoch_performance
+    description: >
+      Validator performance per epoch comparing expected vs actual block production.
+      Shows all validators in the snapshot set with their actual blocks produced,
+      production rank within epoch, and percentage of total blocks mined.
+      Left joins snapshot validators to block production so validators who produced
+      zero blocks are still included.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from the snapshot set
+
+      - name: VALIDATOR_POSITION
+        description: Position of validator in the snapshot set
+
+      - name: VALIDATOR_ADDRESS
+        description: Auth address of the validator
+
+      - name: VALIDATORS_IN_SNAPSHOT
+        description: Total number of validators in the snapshot set for this epoch
+
+      - name: TOTAL_EPOCH_BLOCKS
+        description: Total blocks in this epoch
+
+      - name: EXPECTED_BLOCKS_PER_VALIDATOR
+        description: Expected blocks per validator assuming equal distribution (total_epoch_blocks / validators_in_snapshot)
+
+      - name: ACTUAL_BLOCKS_PRODUCED
+        description: Actual number of blocks produced by this validator in this epoch
+
+      - name: BLOCKS_VS_EXPECTED
+        description: Difference between actual and expected blocks (positive = overperformed, negative = underperformed)
+
+      - name: PCT_OF_EPOCH_BLOCKS
+        description: Percentage of total epoch blocks produced by this validator
+
+      - name: PRODUCTION_RANK
+        description: Rank of validator by blocks produced within this epoch (1 = most blocks)
+
+      - name: TOTAL_GAS_USED
+        description: Total gas used across all blocks produced by this validator
+
+      - name: AVG_GAS_PER_BLOCK
+        description: Average gas per block for this validator
+
+      - name: TOTAL_TRANSACTIONS
+        description: Total transactions across all blocks produced
+
+      - name: AVG_TX_PER_BLOCK
+        description: Average transactions per block
+
+      - name: EPOCH_START_TIMESTAMP
+        description: Timestamp when the epoch started
+
+      - name: EPOCH_END_TIMESTAMP
+        description: Timestamp when the epoch ended
+
+      - name: FACT_STAKING_VALIDATOR_EPOCH_PERFORMANCE_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
