@@ -743,3 +743,96 @@ models:
 
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
+
+  - name: gov__fact_staking_validator_snapshots
+    description: >
+      Parsed daily validator snapshots from getValidator() LiveQuery calls.
+      Includes stake amounts, commission rates, unclaimed rewards, and status flags.
+
+    columns:
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot (end of day)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: SNAPSHOT_BLOCK
+        description: Block number at which snapshot was taken
+
+      - name: AUTH_ADDRESS
+        description: Validator's authorized address
+
+      - name: FLAGS
+        description: Validator status flags
+
+      - name: EXECUTION_STAKE_RAW
+        description: Raw execution stake in wei
+
+      - name: EXECUTION_STAKE
+        description: Execution stake in MON
+
+      - name: EXECUTION_STAKE_USD
+        description: Execution stake value in USD
+
+      - name: ACCUMULATED_REWARDS_PER_TOKEN_RAW
+        description: Accumulated rewards per token (raw)
+
+      - name: EXECUTION_COMMISSION_BPS
+        description: Execution commission in basis points
+
+      - name: EXECUTION_COMMISSION_PCT
+        description: Execution commission as percentage
+
+      - name: UNCLAIMED_REWARDS_RAW
+        description: Raw unclaimed rewards in wei
+
+      - name: UNCLAIMED_REWARDS
+        description: Unclaimed rewards in MON
+
+      - name: UNCLAIMED_REWARDS_USD
+        description: Unclaimed rewards value in USD
+
+      - name: CONSENSUS_STAKE_RAW
+        description: Raw consensus stake in wei
+
+      - name: CONSENSUS_STAKE
+        description: Consensus stake in MON
+
+      - name: CONSENSUS_STAKE_USD
+        description: Consensus stake value in USD
+
+      - name: CONSENSUS_COMMISSION_BPS
+        description: Consensus commission in basis points
+
+      - name: CONSENSUS_COMMISSION_PCT
+        description: Consensus commission as percentage
+
+      - name: SNAPSHOT_STAKE_RAW
+        description: Raw snapshot stake in wei
+
+      - name: SNAPSHOT_STAKE
+        description: Snapshot stake in MON
+
+      - name: SNAPSHOT_STAKE_USD
+        description: Snapshot stake value in USD
+
+      - name: SNAPSHOT_COMMISSION_BPS
+        description: Snapshot commission in basis points
+
+      - name: SNAPSHOT_COMMISSION_PCT
+        description: Snapshot commission as percentage
+
+      - name: MON_PRICE_USD
+        description: End of day MON price in USD used for valuations
+
+      - name: FACT_STAKING_VALIDATOR_SNAPSHOTS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified

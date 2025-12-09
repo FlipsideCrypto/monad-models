@@ -87,3 +87,34 @@ models:
 
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
+
+  - name: silver__staking_snapshot_get_validator
+    description: >
+      Daily snapshot of validator state via LiveQuery.
+      Calls getValidator(uint256 validatorId) at the last block of each day.
+      Limited to last 16 days, one day per run. Raw response stored for parsing downstream.
+
+    columns:
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot (end of day)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: SNAPSHOT_BLOCK
+        description: Last block number of the snapshot date
+
+      - name: RESPONSE
+        description: Raw JSON response from the LiveQuery API call
+
+      - name: STAKING_SNAPSHOT_GET_VALIDATOR_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
