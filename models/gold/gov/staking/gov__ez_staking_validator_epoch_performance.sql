@@ -1,31 +1,46 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "fact_staking_validator_epoch_performance_id",
+    unique_key = "ez_staking_validator_epoch_performance_id",
     cluster_by = ['epoch'],
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 /*
 Validator performance per epoch comparing expected vs actual block production.
 Shows all validators in the snapshot set with their actual blocks produced,
 rank within epoch, and percentage of total blocks mined.
+
+Only includes epochs that started after the validator was created.
 */
 
-WITH snapshot_validators AS (
+WITH validator_creation AS (
+    SELECT
+        validator_id,
+        auth_address,
+        block_timestamp AS created_at
+    FROM
+        {{ ref('gov__fact_staking_validators_created') }}
+),
+
+snapshot_validators AS (
     SELECT
         s.epoch,
         s.validator_id,
         s.validator_position,
-        v.auth_address AS validator_address
+        vc.auth_address AS validator_address
     FROM
         {{ ref('silver__staking_snapshot_validator_set') }} s
-    LEFT JOIN
-        {{ ref('gov__fact_staking_validators_created') }} v
-        ON s.validator_id = v.validator_id
-{% if is_incremental() %}
+    INNER JOIN
+        validator_creation vc
+        ON s.validator_id = vc.validator_id
+    INNER JOIN
+        {{ ref('gov__dim_staking_epochs') }} e
+        ON s.epoch = e.epoch
     WHERE
-        s.epoch > (SELECT MAX(epoch) - 5 FROM {{ this }})
+        e.epoch_start_timestamp >= vc.created_at
+{% if is_incremental() %}
+        AND s.epoch > (SELECT MAX(epoch) - 5 FROM {{ this }})
 {% endif %}
 ),
 
@@ -48,14 +63,15 @@ epoch_info AS (
 block_production AS (
     SELECT
         epoch,
-        LOWER(validator_address) AS validator_address,
+        validator_id,
+        LOWER(consensus_address) AS consensus_address,
         blocks_produced,
         total_gas_used,
         avg_gas_per_block,
         total_transactions,
         avg_tx_per_block
     FROM
-        {{ ref('gov__fact_staking_block_production') }}
+        {{ ref('gov__ez_staking_block_production') }}
 {% if is_incremental() %}
     WHERE
         epoch > (SELECT MAX(epoch) - 5 FROM {{ this }})
@@ -106,7 +122,7 @@ validator_performance AS (
     LEFT JOIN
         block_production bp
         ON sv.epoch = bp.epoch
-        AND LOWER(sv.validator_address) = bp.validator_address
+        AND sv.validator_id = bp.validator_id
     INNER JOIN
         validators_per_epoch vpe
         ON sv.epoch = vpe.epoch
@@ -136,7 +152,7 @@ SELECT
     avg_tx_per_block,
     epoch_start_timestamp,
     epoch_end_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['epoch', 'validator_id']) }} AS fact_staking_validator_epoch_performance_id,
+    {{ dbt_utils.generate_surrogate_key(['epoch', 'validator_id']) }} AS ez_staking_validator_epoch_performance_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

@@ -3,13 +3,17 @@
     incremental_strategy = 'delete+insert',
     unique_key = "fact_staking_validator_snapshots_id",
     cluster_by = ['snapshot_date'],
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 /*
-Parsed daily validator snapshots from getValidator() LiveQuery calls.
-Includes stake amounts, commission rates, unclaimed rewards, and status flags.
-Joined to end of day prices for USD valuations.
+Daily validator snapshots from getValidator() LiveQuery calls.
+Adds USD valuations to the parsed silver layer data.
+
+IMPORTANT: unclaimed_rewards here is the DELEGATOR REWARD POOL - the total
+undistributed rewards for ALL delegators to claim from. This is NOT the
+validator's personal earnings. For validator earnings, use
+ez_staking_validator_earnings (which sources from getDelegator snapshots).
 */
 
 WITH prices AS (
@@ -20,78 +24,74 @@ WITH prices AS (
         {{ ref('price__ez_prices_hourly') }}
     WHERE
         is_native = TRUE
-        AND HOUR = DATEADD('hour', 23, hour::DATE)
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY hour::DATE ORDER BY hour DESC) = 1
 ),
 
-raw_snapshots AS (
+snapshots AS (
     SELECT
         snapshot_date,
         validator_id,
         snapshot_block,
-        response
+        auth_address,
+        flags,
+        execution_stake_raw,
+        execution_stake,
+        accumulated_rewards_per_token_raw,
+        execution_commission_bps,
+        execution_commission_pct,
+        unclaimed_rewards_raw,
+        unclaimed_rewards,
+        consensus_stake_raw,
+        consensus_stake,
+        consensus_commission_bps,
+        consensus_commission_pct,
+        snapshot_stake_raw,
+        snapshot_stake,
+        snapshot_commission_bps,
+        snapshot_commission_pct,
+        secp_pubkey,
+        bls_pubkey
     FROM
         {{ ref('silver__staking_snapshot_get_validator') }}
 {% if is_incremental() %}
     WHERE
-        snapshot_date > (SELECT MAX(snapshot_date) FROM {{ this }})
+        modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
 {% endif %}
-),
-
-parsed AS (
-    SELECT
-        snapshot_date,
-        validator_id,
-        snapshot_block,
-        response:data:result::STRING AS validator_data_hex,
-        REGEXP_SUBSTR_ALL(SUBSTR(validator_data_hex, 3, LEN(validator_data_hex)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(segmented_data[0]::STRING, 25, 40)) AS auth_address,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[1]::STRING)) AS flags,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[2]::STRING)) AS execution_stake_raw,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[3]::STRING)) AS accumulated_rewards_per_token_raw,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[4]::STRING)) AS execution_commission_bps,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[5]::STRING)) AS unclaimed_rewards_raw,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[6]::STRING)) AS consensus_stake_raw,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[7]::STRING)) AS consensus_commission_bps,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[8]::STRING)) AS snapshot_stake_raw,
-        TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data[9]::STRING)) AS snapshot_commission_bps
-    FROM
-        raw_snapshots
-    WHERE
-        validator_data_hex IS NOT NULL
-        AND validator_data_hex != '0x'
 )
 
 SELECT
-    p.snapshot_date,
-    p.validator_id,
-    p.snapshot_block,
-    p.auth_address,
-    p.flags,
-    p.execution_stake_raw,
-    p.execution_stake_raw / POW(10, 18) AS execution_stake,
-    ROUND((p.execution_stake_raw / POW(10, 18)) * pr.mon_price_usd, 2) AS execution_stake_usd,
-    p.accumulated_rewards_per_token_raw,
-    p.execution_commission_bps,
-    p.execution_commission_bps / 100.0 AS execution_commission_pct,
-    p.unclaimed_rewards_raw,
-    p.unclaimed_rewards_raw / POW(10, 18) AS unclaimed_rewards,
-    ROUND((p.unclaimed_rewards_raw / POW(10, 18)) * pr.mon_price_usd, 2) AS unclaimed_rewards_usd,
-    p.consensus_stake_raw,
-    p.consensus_stake_raw / POW(10, 18) AS consensus_stake,
-    ROUND((p.consensus_stake_raw / POW(10, 18)) * pr.mon_price_usd, 2) AS consensus_stake_usd,
-    p.consensus_commission_bps,
-    p.consensus_commission_bps / 100.0 AS consensus_commission_pct,
-    p.snapshot_stake_raw,
-    p.snapshot_stake_raw / POW(10, 18) AS snapshot_stake,
-    ROUND((p.snapshot_stake_raw / POW(10, 18)) * pr.mon_price_usd, 2) AS snapshot_stake_usd,
-    p.snapshot_commission_bps,
-    p.snapshot_commission_bps / 100.0 AS snapshot_commission_pct,
-    pr.mon_price_usd,
-    {{ dbt_utils.generate_surrogate_key(['p.snapshot_date', 'p.validator_id']) }} AS fact_staking_validator_snapshots_id,
+    s.snapshot_date,
+    s.validator_id,
+    s.snapshot_block,
+    s.auth_address,
+    s.flags,
+    s.execution_stake_raw,
+    s.execution_stake,
+    ROUND(s.execution_stake * p.mon_price_usd, 2) AS execution_stake_usd,
+    s.accumulated_rewards_per_token_raw,
+    s.execution_commission_bps,
+    s.execution_commission_pct,
+    s.unclaimed_rewards_raw,
+    s.unclaimed_rewards,
+    ROUND(s.unclaimed_rewards * p.mon_price_usd, 2) AS unclaimed_rewards_usd,
+    s.consensus_stake_raw,
+    s.consensus_stake,
+    ROUND(s.consensus_stake * p.mon_price_usd, 2) AS consensus_stake_usd,
+    s.consensus_commission_bps,
+    s.consensus_commission_pct,
+    s.snapshot_stake_raw,
+    s.snapshot_stake,
+    ROUND(s.snapshot_stake * p.mon_price_usd, 2) AS snapshot_stake_usd,
+    s.snapshot_commission_bps,
+    s.snapshot_commission_pct,
+    s.secp_pubkey,
+    s.bls_pubkey,
+    p.mon_price_usd,
+    {{ dbt_utils.generate_surrogate_key(['s.snapshot_date', 's.validator_id']) }} AS fact_staking_validator_snapshots_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    parsed p
+    snapshots s
 LEFT JOIN
-    prices pr
-    ON p.snapshot_date = pr.price_date
+    prices p
+    ON s.snapshot_date = p.price_date

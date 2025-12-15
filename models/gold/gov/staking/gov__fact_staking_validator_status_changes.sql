@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "fact_staking_validator_status_changes_id",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 -- ValidatorStatusChanged: validatorId (indexed), flags

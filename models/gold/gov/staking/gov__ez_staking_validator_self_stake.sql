@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 /*
@@ -26,7 +26,7 @@ daily_balances AS (
         pending_withdrawal_balance,
         total_balance_at_risk
     FROM
-        {{ ref('gov__fact_staking_balances_daily') }}
+        {{ ref('gov__ez_staking_balances_daily') }}
 ),
 
 validator_totals AS (

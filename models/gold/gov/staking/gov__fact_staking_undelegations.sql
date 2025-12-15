@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "fact_staking_undelegations_id",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 -- Undelegate: validatorId (indexed), delegator (indexed), withdrawId, amount, activationEpoch

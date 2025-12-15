@@ -1,9 +1,9 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "fact_staking_validator_balances_daily_id",
+    unique_key = "ez_staking_validator_balances_daily_id",
     cluster_by = ['balance_date'],
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 /*
@@ -100,7 +100,7 @@ forward_filled AS (
         balances_with_gaps
 ),
 
--- Get end of day price (hour 23)
+-- Get last price of each day
 prices AS (
     SELECT
         hour::DATE AS price_date,
@@ -109,7 +109,7 @@ prices AS (
         {{ ref('price__ez_prices_hourly') }}
     WHERE
         is_native = TRUE
-        AND HOUR = DATEADD('hour', 23, hour::DATE)
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY hour::DATE ORDER BY hour DESC) = 1
 )
 
 SELECT
@@ -121,7 +121,7 @@ SELECT
     p.price AS mon_price_usd,
     ROUND(ff.balance * p.price, 2) AS balance_usd,
     ff.is_forward_filled,
-    {{ dbt_utils.generate_surrogate_key(['balance_date', 'validator_id']) }} AS fact_staking_validator_balances_daily_id,
+    {{ dbt_utils.generate_surrogate_key(['balance_date', 'validator_id']) }} AS ez_staking_validator_balances_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

@@ -1,9 +1,9 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "fact_staking_balances_daily_id",
+    unique_key = "ez_staking_balances_daily_id",
     cluster_by = ['balance_date'],
-    tags = ['gold', 'gov', 'staking']
+    tags = ['gold', 'gov', 'staking', 'curated_daily']
 ) }}
 
 /*
@@ -147,7 +147,7 @@ SELECT
     active_balance + pending_withdrawal_balance AS total_balance_at_risk,
     daily_active_change,
     daily_pending_change,
-    {{ dbt_utils.generate_surrogate_key(['balance_date', 'validator_id', 'delegator_address']) }} AS fact_staking_balances_daily_id,
+    {{ dbt_utils.generate_surrogate_key(['balance_date', 'validator_id', 'delegator_address']) }} AS ez_staking_balances_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

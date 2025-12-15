@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "snapshot_validator_set_id",
     cluster_by = ['epoch'],
-    tags = ['silver', 'gov', 'staking', 'livequery']
+    tags = ['silver', 'gov', 'staking', 'livequery', 'curated_daily']
 ) }}
 
 /*
