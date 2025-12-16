@@ -37,15 +37,15 @@ WITH validators AS (
 -- Get last block for each day, limited to recent dates not already in table
 last_blocks AS (
     SELECT
-        block_timestamp::DATE AS snapshot_date,
+        block_date AS snapshot_date,
         MAX(block_number) AS last_block_number
     FROM
-       monad.core.fact_blocks-- {{ ref('core__fact_blocks') }}
+        {{ ref('_max_block_by_date') }}
     WHERE
-        block_timestamp::DATE >= DATEADD('day', -7, CURRENT_DATE)
-        AND block_timestamp::DATE < CURRENT_DATE
+        block_date >= DATEADD('day', -7, CURRENT_DATE)
+        AND block_date < CURRENT_DATE
 {% if is_incremental() %}
-        AND block_timestamp::DATE NOT IN (SELECT DISTINCT snapshot_date FROM {{ this }})
+        AND block_date NOT IN (SELECT DISTINCT snapshot_date FROM {{ this }})
 {% endif %}
     GROUP BY 1
     ORDER BY 1

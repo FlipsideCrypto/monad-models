@@ -20,7 +20,7 @@ SELECT
     inserted_timestamp,
     modified_timestamp
 FROM
-   monad.core.ez_decoded_event_logs-- {{ ref('core__ez_decoded_event_logs') }}
+   {{ ref('core__ez_decoded_event_logs') }}
 WHERE
     contract_address = '0x0000000000000000000000000000000000001000'
     AND tx_succeeded
