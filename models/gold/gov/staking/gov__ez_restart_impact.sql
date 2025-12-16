@@ -14,7 +14,7 @@ Useful for operational decision-making around maintenance windows.
 
 WITH max_epoch AS (
     SELECT MAX(epoch) AS max_epoch
-    FROM {{ ref('gov__ez_staking_validator_epoch_performance') }}
+    FROM {{ ref('gov__ez_validator_epoch_performance') }}
 ),
 
 validator_stats AS (
@@ -25,7 +25,7 @@ validator_stats AS (
         AVG(p.pct_of_epoch_blocks) AS avg_pct_share,
         AVG(p.total_block_rewards) AS avg_rewards_per_epoch,
         COUNT(*) AS epochs_analyzed
-    FROM {{ ref('gov__ez_staking_validator_epoch_performance') }} p
+    FROM {{ ref('gov__ez_validator_epoch_performance') }} p
     CROSS JOIN max_epoch m
     WHERE p.epoch >= m.max_epoch - 10
     GROUP BY 1, 2
@@ -35,10 +35,10 @@ epoch_stats AS (
     SELECT
         AVG(e.epoch_block_count) AS avg_epoch_blocks,
         AVG(e.epoch_duration_seconds) AS avg_epoch_seconds
-    FROM {{ ref('gov__dim_staking_epochs') }} e
+    FROM {{ ref('gov__dim_epochs') }} e
     INNER JOIN (
         SELECT DISTINCT epoch
-        FROM {{ ref('gov__ez_staking_validator_epoch_performance') }}
+        FROM {{ ref('gov__ez_validator_epoch_performance') }}
     ) p ON e.epoch = p.epoch
     CROSS JOIN max_epoch m
     WHERE e.epoch >= m.max_epoch - 10
@@ -50,7 +50,7 @@ commission_stats AS (
     SELECT
         validator_id,
         AVG(total_earned) AS avg_daily_commission_mon
-    FROM {{ ref('gov__ez_staking_validator_earnings') }}
+    FROM {{ ref('gov__ez_validator_earnings') }}
     WHERE earning_date >= DATEADD('day', -30, CURRENT_DATE)
     GROUP BY 1
 ),
@@ -101,10 +101,10 @@ SELECT
     ROUND(COALESCE(c.avg_daily_commission_mon, 0) * (60.0 / 1440), 6) AS loss_mon_1hr,
     ROUND(COALESCE(c.avg_daily_commission_mon, 0) * (60.0 / 1440) * COALESCE(p.mon_price_usd, 0), 2) AS loss_usd_1hr,
 
-    {{ dbt_utils.generate_surrogate_key(['vs.validator_id']) }} AS ez_staking_restart_impact_id
+    {{ dbt_utils.generate_surrogate_key(['vs.validator_id']) }} AS ez_restart_impact_id
 
 FROM validator_stats vs
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} vd ON vs.validator_id = vd.validator_id
+LEFT JOIN {{ ref('gov__dim_validators') }} vd ON vs.validator_id = vd.validator_id
 CROSS JOIN epoch_stats e
 LEFT JOIN commission_stats c ON vs.validator_id = c.validator_id
 CROSS JOIN current_price p

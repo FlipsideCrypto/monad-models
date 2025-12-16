@@ -56,19 +56,19 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: silver__staking_snapshot_validator_set
+  - name: silver__snapshot_validator_set
     description: >
       Snapshot validator set for each epoch, fetched via LiveQuery from the staking precompile.
       The snapshot validator set determines which validators are eligible for producing blocks
       in that epoch. Uses getSnapshotValidatorSet(uint32 startIndex) to paginate through all validators.
-      Queries at epoch_start_block from gov__dim_staking_epochs.
+      Queries at epoch_start_block from gov__dim_epochs.
 
     columns:
       - name: EPOCH
         description: Epoch number for this snapshot
 
       - name: EPOCH_START_BLOCK
-        description: Block number where the epoch started (from dim_staking_epochs)
+        description: Block number where the epoch started (from gov__dim_epochs)
 
       - name: VALIDATOR_ID
         description: ID of the validator in the snapshot set
@@ -88,7 +88,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: silver__staking_snapshot_get_validator
+  - name: silver__snapshot_get_validator
     description: >
       Daily snapshot of validator state via LiveQuery.
       Calls getValidator(uint256 validatorId) at the last block of each day.
@@ -164,7 +164,7 @@ models:
       - name: RAW_RESPONSE
         description: Raw JSON response from the LiveQuery API call
 
-      - name: STAKING_SNAPSHOT_GET_VALIDATOR_ID
+      - name: SNAPSHOT_GET_VALIDATOR_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -176,7 +176,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: silver__staking_snapshot_get_delegator
+  - name: silver__snapshot_get_delegator
     description: >
       Daily snapshot of validator self-delegation state via LiveQuery.
       Calls getDelegator(uint64 validatorId, address delegator) at the last block of each day,
@@ -202,7 +202,7 @@ models:
           Raw JSON response from the LiveQuery API call. Contains getDelegator return values:
           stake, accRewardPerToken, unclaimedRewards, deltaStake, nextDeltaStake, deltaEpoch, nextDeltaEpoch
 
-      - name: STAKING_SNAPSHOT_GET_DELEGATOR_ID
+      - name: SNAPSHOT_GET_DELEGATOR_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -214,7 +214,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: silver__staking_validator_addresses
+  - name: silver__validator_addresses
     description: >
       Maps validator_id to consensus_address (validator address derived from secp_pubkey).
       The consensus_address is extracted from syscallReward trace input - when a validator
@@ -238,7 +238,7 @@ models:
       - name: VALIDATOR_CREATED_AT
         description: Timestamp when the validator was created
 
-      - name: STAKING_VALIDATOR_ADDRESSES_ID
+      - name: VALIDATOR_ADDRESSES_ID
         description: Unique identifier for this record
         tests:
           - unique

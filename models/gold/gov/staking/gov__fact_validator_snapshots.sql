@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "fact_staking_validator_snapshots_id",
+    unique_key = "fact_validator_snapshots_id",
     cluster_by = ['snapshot_date'],
     tags = ['gov', 'curated_daily']
 ) }}
@@ -13,7 +13,7 @@ Adds USD valuations to the parsed silver layer data.
 IMPORTANT: unclaimed_rewards here is the DELEGATOR REWARD POOL - the total
 undistributed rewards for ALL delegators to claim from. This is NOT the
 validator's personal earnings. For validator earnings, use
-ez_staking_validator_earnings (which sources from getDelegator snapshots).
+ez_validator_earnings (which sources from getDelegator snapshots).
 */
 
 WITH prices AS (
@@ -52,7 +52,7 @@ snapshots AS (
         secp_pubkey,
         bls_pubkey
     FROM
-        {{ ref('silver__staking_snapshot_get_validator') }}
+        {{ ref('silver__snapshot_get_validator') }}
 {% if is_incremental() %}
     WHERE
         modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
@@ -87,7 +87,7 @@ SELECT
     s.secp_pubkey,
     s.bls_pubkey,
     p.mon_price_usd,
-    {{ dbt_utils.generate_surrogate_key(['s.snapshot_date', 's.validator_id']) }} AS fact_staking_validator_snapshots_id,
+    {{ dbt_utils.generate_surrogate_key(['s.snapshot_date', 's.validator_id']) }} AS fact_validator_snapshots_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

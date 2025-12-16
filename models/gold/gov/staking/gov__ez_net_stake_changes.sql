@@ -16,7 +16,7 @@ WITH stake_in AS (
         SUM(amount) AS delegations,
         SUM(amount_raw) AS delegations_raw,
         COUNT(*) AS delegation_count
-    FROM {{ ref('gov__fact_staking_delegations') }}
+    FROM {{ ref('gov__fact_delegations') }}
     GROUP BY 1, 2
 ),
 
@@ -27,7 +27,7 @@ stake_out AS (
         SUM(amount) AS undelegations,
         SUM(amount_raw) AS undelegations_raw,
         COUNT(*) AS undelegation_count
-    FROM {{ ref('gov__fact_staking_undelegations') }}
+    FROM {{ ref('gov__fact_undelegations') }}
     GROUP BY 1, 2
 ),
 
@@ -77,8 +77,8 @@ SELECT
         ROWS UNBOUNDED PRECEDING
     ) AS cumulative_net_change,
 
-    {{ dbt_utils.generate_surrogate_key(['c.validator_id', 'c.change_date']) }} AS ez_staking_net_stake_changes_id
+    {{ dbt_utils.generate_surrogate_key(['c.validator_id', 'c.change_date']) }} AS ez_net_stake_changes_id
 
 FROM combined c
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} v
+LEFT JOIN {{ ref('gov__dim_validators') }} v
     ON c.validator_id = v.validator_id

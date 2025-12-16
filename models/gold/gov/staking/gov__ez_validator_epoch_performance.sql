@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "ez_staking_validator_epoch_performance_id",
+    unique_key = "ez_validator_epoch_performance_id",
     cluster_by = ['epoch'],
     tags = ['gov', 'curated_daily']
 ) }}
@@ -20,7 +20,7 @@ WITH validator_creation AS (
         auth_address,
         block_timestamp AS created_at
     FROM
-        {{ ref('gov__fact_staking_validators_created') }}
+        {{ ref('gov__fact_validators_created') }}
 ),
 
 snapshot_validators AS (
@@ -30,12 +30,12 @@ snapshot_validators AS (
         s.validator_position,
         vc.auth_address AS validator_address
     FROM
-        {{ ref('silver__staking_snapshot_validator_set') }} s
+        {{ ref('silver__snapshot_validator_set') }} s
     INNER JOIN
         validator_creation vc
         ON s.validator_id = vc.validator_id
     INNER JOIN
-        {{ ref('gov__dim_staking_epochs') }} e
+        {{ ref('gov__dim_epochs') }} e
         ON s.epoch = e.epoch
     WHERE
         e.epoch_start_timestamp >= vc.created_at
@@ -53,7 +53,7 @@ epoch_info AS (
         epoch_start_timestamp,
         epoch_end_timestamp
     FROM
-        {{ ref('gov__dim_staking_epochs') }}
+        {{ ref('gov__dim_epochs') }}
 {% if is_incremental() %}
     WHERE
         epoch > (SELECT MAX(epoch) - 5 FROM {{ this }})
@@ -68,7 +68,7 @@ block_production AS (
         total_block_rewards,
         avg_reward_per_block
     FROM
-        {{ ref('gov__ez_staking_block_production') }}
+        {{ ref('gov__ez_block_production') }}
 {% if is_incremental() %}
     WHERE
         epoch > (SELECT MAX(epoch) - 5 FROM {{ this }})
@@ -147,11 +147,11 @@ SELECT
     vp.avg_reward_per_block,
     vp.epoch_start_timestamp,
     vp.epoch_end_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['vp.epoch', 'vp.validator_id']) }} AS ez_staking_validator_epoch_performance_id,
+    {{ dbt_utils.generate_surrogate_key(['vp.epoch', 'vp.validator_id']) }} AS ez_validator_epoch_performance_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
     validator_performance vp
 LEFT JOIN
-    {{ ref('gov__dim_staking_validators') }} v
+    {{ ref('gov__dim_validators') }} v
     ON vp.validator_id = v.validator_id

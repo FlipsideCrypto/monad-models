@@ -8,7 +8,7 @@ Miss rate and estimated commission impact per validator per epoch.
 Calculates missed blocks as expected minus actual, and estimates
 the commission lost due to missed block production.
 
-Uses average daily commission from fact_staking_validator_earnings
+Uses average daily commission from fact_validator_earnings
 to estimate impact, since missed blocks reduce validator's share
 of block rewards proportionally.
 */
@@ -27,14 +27,14 @@ WITH performance AS (
         production_rank,
         epoch_start_timestamp,
         epoch_end_timestamp
-    FROM {{ ref('gov__ez_staking_validator_epoch_performance') }}
+    FROM {{ ref('gov__ez_validator_epoch_performance') }}
 ),
 
 avg_daily_commission AS (
     SELECT
         validator_id,
         AVG(total_earned) AS avg_daily_commission_mon
-    FROM {{ ref('gov__ez_staking_validator_earnings') }}
+    FROM {{ ref('gov__ez_validator_earnings') }}
     GROUP BY 1
 ),
 
@@ -102,9 +102,9 @@ SELECT
     p.epoch_start_timestamp,
     p.epoch_end_timestamp,
 
-    {{ dbt_utils.generate_surrogate_key(['p.epoch', 'p.validator_id']) }} AS ez_staking_miss_rate_id
+    {{ dbt_utils.generate_surrogate_key(['p.epoch', 'p.validator_id']) }} AS ez_miss_rate_id
 
 FROM performance p
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} v ON p.validator_id = v.validator_id
+LEFT JOIN {{ ref('gov__dim_validators') }} v ON p.validator_id = v.validator_id
 LEFT JOIN avg_daily_commission c ON p.validator_id = c.validator_id
 CROSS JOIN current_price pr

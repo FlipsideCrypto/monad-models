@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "staking_snapshot_get_validator_id",
+    unique_key = "snapshot_get_validator_id",
     cluster_by = ['snapshot_date'],
     tags = ['gov', 'curated_daily']
 ) }}
@@ -31,7 +31,7 @@ WITH validators AS (
     SELECT DISTINCT
         validator_id
     FROM
-        {{ ref('gov__fact_staking_validators_created') }}
+        {{ ref('gov__fact_validators_created') }}
 ),
 
 -- Get last block for each day, limited to recent dates not already in table
@@ -186,7 +186,7 @@ SELECT
     secp_pubkey,
     bls_pubkey,
     response AS raw_response,
-    {{ dbt_utils.generate_surrogate_key(['snapshot_date', 'validator_id']) }} AS staking_snapshot_get_validator_id,
+    {{ dbt_utils.generate_surrogate_key(['snapshot_date', 'validator_id']) }} AS snapshot_get_validator_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

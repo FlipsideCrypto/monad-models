@@ -18,7 +18,7 @@ WITH epoch_changes AS (
         tx_hash,
         ROW_NUMBER() OVER (ORDER BY new_epoch) AS rn
     FROM
-        {{ ref('gov__fact_staking_epoch_changes') }}
+        {{ ref('gov__fact_epoch_changes') }}
 ),
 
 with_end_blocks AS (

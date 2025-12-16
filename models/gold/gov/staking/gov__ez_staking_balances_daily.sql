@@ -39,7 +39,7 @@ delegations AS (
         amount AS active_change,
         0 AS pending_change
     FROM
-        {{ ref('gov__fact_staking_delegations') }}
+        {{ ref('gov__fact_delegations') }}
 ),
 
 -- Undelegations move from active to pending withdrawal
@@ -51,7 +51,7 @@ undelegations AS (
         -amount AS active_change,
         amount AS pending_change
     FROM
-        {{ ref('gov__fact_staking_undelegations') }}
+        {{ ref('gov__fact_undelegations') }}
 ),
 
 -- Withdrawals remove from pending (funds returned to delegator)
@@ -63,7 +63,7 @@ withdrawals AS (
         0 AS active_change,
         -amount AS pending_change
     FROM
-        {{ ref('gov__fact_staking_withdrawals') }}
+        {{ ref('gov__fact_withdrawals') }}
 ),
 
 all_actions AS (
@@ -155,7 +155,7 @@ SELECT
 FROM
     balances b
 LEFT JOIN
-    {{ ref('gov__dim_staking_validators') }} v
+    {{ ref('gov__dim_validators') }} v
     ON b.validator_id = v.validator_id
 WHERE
     b.active_balance != 0

@@ -18,7 +18,7 @@ WITH delegations AS (
         SUM(amount) AS amount,
         SUM(amount_raw) AS amount_raw,
         COUNT(*) AS tx_count
-    FROM {{ ref('gov__fact_staking_delegations') }}
+    FROM {{ ref('gov__fact_delegations') }}
     GROUP BY 1, 2, 3, 4
 ),
 
@@ -31,7 +31,7 @@ undelegations AS (
         SUM(amount) AS amount,
         SUM(amount_raw) AS amount_raw,
         COUNT(*) AS tx_count
-    FROM {{ ref('gov__fact_staking_undelegations') }}
+    FROM {{ ref('gov__fact_undelegations') }}
     GROUP BY 1, 2, 3, 4
 ),
 
@@ -44,7 +44,7 @@ withdrawals AS (
         SUM(amount) AS amount,
         SUM(amount_raw) AS amount_raw,
         COUNT(*) AS tx_count
-    FROM {{ ref('gov__fact_staking_withdrawals') }}
+    FROM {{ ref('gov__fact_withdrawals') }}
     GROUP BY 1, 2, 3, 4
 ),
 
@@ -57,7 +57,7 @@ claims AS (
         SUM(amount) AS amount,
         SUM(amount_raw) AS amount_raw,
         COUNT(*) AS tx_count
-    FROM {{ ref('gov__fact_staking_rewards_claimed') }}
+    FROM {{ ref('gov__fact_rewards_claimed') }}
     GROUP BY 1, 2, 3, 4
 ),
 
@@ -83,5 +83,5 @@ SELECT
     f.tx_count,
     {{ dbt_utils.generate_surrogate_key(['f.flow_date', 'f.validator_id', 'f.delegator_address', 'f.flow_type']) }} AS ez_staking_flows_daily_id
 FROM all_flows f
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} v
+LEFT JOIN {{ ref('gov__dim_validators') }} v
     ON f.validator_id = v.validator_id

@@ -1,18 +1,14 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "dim_staking_validators_id",
+    unique_key = "gov__dim_validators_id",
     cluster_by = ['validator_id'],
     tags = ['gov', 'curated_daily']
 ) }}
 
 /*
 Dimension table for Monad validators.
-Combines validator creation data, seed metadata, latest snapshot state, and labels.
-
-Priority for validator name/metadata:
-1. Seed data (staking_validator_metadata) - primary source
-2. Labels table - fallback
+Combines validator creation data, latest snapshot state, and labels.
 
 auth_address: Administrative address from validator creation event, used for
 withdrawals and receiving commission.
@@ -28,19 +24,7 @@ WITH validators_created AS (
         block_timestamp AS created_at,
         tx_hash AS creation_tx_hash
     FROM
-        {{ ref('gov__fact_staking_validators_created') }}
-),
-
--- Get validator metadata from seed (primary source)
-validator_metadata AS (
-    SELECT
-        validator_id,
-        name AS validator_name,
-        city,
-        country,
-        region
-    FROM
-        {{ ref('silver__staking_validator_metadata') }}
+        {{ ref('gov__fact_validators_created') }}
 ),
 
 -- Get consensus address for each validator (derived from secp_pubkey)
@@ -49,7 +33,7 @@ addresses AS (
         validator_id,
         consensus_address
     FROM
-        {{ ref('silver__staking_validator_addresses') }}
+        {{ ref('silver__validator_addresses') }}
 ),
 
 -- Get latest snapshot data for each validator
@@ -64,10 +48,10 @@ latest_snapshots AS (
         bls_pubkey,
         ROW_NUMBER() OVER (PARTITION BY validator_id ORDER BY snapshot_date DESC) AS rn
     FROM
-        {{ ref('gov__fact_staking_validator_snapshots') }}
+        {{ ref('gov__fact_validator_snapshots') }}
 ),
 
--- Get validator name from labels as fallback (join on auth_address)
+-- Get validator name from labels (join on auth_address)
 validator_labels AS (
     SELECT
         address,
@@ -83,10 +67,7 @@ validator_labels AS (
 
 SELECT
     vc.validator_id,
-    COALESCE(vm.validator_name, vl.validator_name) AS validator_name,
-    vm.city,
-    vm.country,
-    vm.region,
+    vl.validator_name,
     vc.auth_address,
     a.consensus_address,
     vc.created_at,
@@ -104,14 +85,11 @@ SELECT
     ls.secp_pubkey,
     ls.bls_pubkey,
     ls.snapshot_date AS latest_snapshot_date,
-    {{ dbt_utils.generate_surrogate_key(['vc.validator_id']) }} AS dim_staking_validators_id,
+    {{ dbt_utils.generate_surrogate_key(['vc.validator_id']) }} AS gov__dim_validators_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
     validators_created vc
-LEFT JOIN
-    validator_metadata vm
-    ON vc.validator_id = vm.validator_id
 LEFT JOIN
     addresses a
     ON vc.validator_id = a.validator_id

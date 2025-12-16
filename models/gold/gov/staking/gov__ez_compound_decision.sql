@@ -20,10 +20,10 @@ WITH latest_snapshot AS (
         unclaimed_rewards,
         unclaimed_rewards_usd,
         mon_price_usd
-    FROM {{ ref('gov__fact_staking_validator_self_delegation_snapshots') }}
+    FROM {{ ref('gov__fact_validator_self_delegation_snapshots') }}
     WHERE snapshot_date = (
         SELECT MAX(snapshot_date)
-        FROM {{ ref('gov__fact_staking_validator_self_delegation_snapshots') }}
+        FROM {{ ref('gov__fact_validator_self_delegation_snapshots') }}
     )
 ),
 
@@ -46,8 +46,8 @@ recent_claims AS (
         COUNT(*) AS claims_last_30d,
         SUM(rc.amount) AS claimed_amount_30d,
         MAX(rc.block_timestamp) AS last_claim_timestamp
-    FROM {{ ref('gov__fact_staking_rewards_claimed') }} rc
-    INNER JOIN {{ ref('gov__fact_staking_validators_created') }} vc
+    FROM {{ ref('gov__fact_rewards_claimed') }} rc
+    INNER JOIN {{ ref('gov__fact_validators_created') }} vc
         ON rc.validator_id = vc.validator_id
         AND rc.delegator_address = vc.auth_address
     WHERE rc.block_timestamp >= DATEADD('day', -30, CURRENT_DATE)
@@ -59,7 +59,7 @@ recent_earnings AS (
         validator_id,
         SUM(total_earned) AS earnings_30d,
         AVG(total_earned) AS avg_daily_earnings
-    FROM {{ ref('gov__ez_staking_validator_earnings') }}
+    FROM {{ ref('gov__ez_validator_earnings') }}
     WHERE earning_date >= DATEADD('day', -30, CURRENT_DATE)
     GROUP BY 1
 )
@@ -117,10 +117,10 @@ SELECT
         ELSE 'Neutral - compound or hold based on cash needs'
     END AS recommendation,
 
-    {{ dbt_utils.generate_surrogate_key(['s.validator_id', 's.snapshot_date']) }} AS ez_staking_compound_decision_id
+    {{ dbt_utils.generate_surrogate_key(['s.validator_id', 's.snapshot_date']) }} AS ez_compound_decision_id
 
 FROM latest_snapshot s
 CROSS JOIN price_trend p
 LEFT JOIN recent_claims c ON s.validator_id = c.validator_id
 LEFT JOIN recent_earnings e ON s.validator_id = e.validator_id
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} v ON s.validator_id = v.validator_id
+LEFT JOIN {{ ref('gov__dim_validators') }} v ON s.validator_id = v.validator_id

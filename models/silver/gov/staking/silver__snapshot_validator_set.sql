@@ -25,7 +25,7 @@ WITH new_epochs AS (
         epoch_start_block,
         utils.udf_int_to_hex(epoch_start_block) AS block_hex
     FROM
-        {{ ref('gov__dim_staking_epochs') }}
+        {{ ref('gov__dim_epochs') }}
     WHERE
     1=1
        AND epoch_start_timestamp >= DATEADD('day', -16, CURRENT_DATE)

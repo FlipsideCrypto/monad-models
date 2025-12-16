@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "fact_staking_validator_self_delegation_snapshots_id",
+    unique_key = "fact_validator_self_delegation_snapshots_id",
     cluster_by = ['snapshot_date'],
     tags = ['gov', 'curated_daily']
 ) }}
@@ -46,7 +46,7 @@ raw_snapshots AS (
         snapshot_block,
         response
     FROM
-        {{ ref('silver__staking_snapshot_get_delegator') }}
+        {{ ref('silver__snapshot_get_delegator') }}
 {% if is_incremental() %}
     WHERE
         modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
@@ -112,7 +112,7 @@ SELECT
     -- Price at snapshot
     pr.mon_price_usd,
 
-    {{ dbt_utils.generate_surrogate_key(['p.snapshot_date', 'p.validator_id']) }} AS fact_staking_validator_self_delegation_snapshots_id,
+    {{ dbt_utils.generate_surrogate_key(['p.snapshot_date', 'p.validator_id']) }} AS fact_validator_self_delegation_snapshots_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

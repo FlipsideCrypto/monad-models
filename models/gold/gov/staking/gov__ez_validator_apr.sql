@@ -8,8 +8,8 @@ Daily and rolling APR/APY calculations per validator.
 APR = (daily_earnings / stake) * 365 * 100
 APY = ((1 + daily_earnings / stake) ^ 365 - 1) * 100
 
-Uses earnings from fact_staking_validator_earnings (commission + self-stake rewards)
-and stake from fact_staking_validator_snapshots (execution_stake).
+Uses earnings from fact_validator_earnings (commission + self-stake rewards)
+and stake from fact_validator_snapshots (execution_stake).
 */
 
 WITH daily_data AS (
@@ -21,8 +21,8 @@ WITH daily_data AS (
         s.execution_stake,
         s.execution_stake_usd,
         e.mon_price_usd
-    FROM {{ ref('gov__ez_staking_validator_earnings') }} e
-    JOIN {{ ref('gov__fact_staking_validator_snapshots') }} s
+    FROM {{ ref('gov__ez_validator_earnings') }} e
+    JOIN {{ ref('gov__fact_validator_snapshots') }} s
         ON e.validator_id = s.validator_id
         AND e.earning_date = s.snapshot_date
     WHERE s.execution_stake > 0
@@ -62,8 +62,8 @@ SELECT
         ROWS BETWEEN 29 PRECEDING AND CURRENT ROW
     ) * 365 * 100, 4) AS apr_30d_rolling_pct,
 
-    {{ dbt_utils.generate_surrogate_key(['d.validator_id', 'd.earning_date']) }} AS ez_staking_validator_apr_id
+    {{ dbt_utils.generate_surrogate_key(['d.validator_id', 'd.earning_date']) }} AS ez_validator_apr_id
 
 FROM daily_data d
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} v
+LEFT JOIN {{ ref('gov__dim_validators') }} v
     ON d.validator_id = v.validator_id

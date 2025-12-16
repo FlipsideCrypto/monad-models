@@ -23,7 +23,7 @@ WITH block_producers AS (
         r.amount,
         r.amount_raw
     FROM
-        {{ ref('gov__fact_staking_validator_rewards') }} r
+        {{ ref('gov__fact_validator_rewards') }} r
     WHERE
         r.origin_to_address = '0x0000000000000000000000000000000000001000'
 ),
@@ -61,9 +61,9 @@ SELECT
     a.last_block_produced,
     a.first_block_timestamp,
     a.last_block_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['a.epoch', 'a.validator_id']) }} AS ez_staking_block_production_id
+    {{ dbt_utils.generate_surrogate_key(['a.epoch', 'a.validator_id']) }} AS ez_block_production_id
 FROM
     aggregated a
 LEFT JOIN
-    {{ ref('gov__dim_staking_validators') }} v
+    {{ ref('gov__dim_validators') }} v
     ON a.validator_id = v.validator_id

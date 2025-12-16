@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: gov__fact_staking_validators_created
+  - name: gov__fact_validators_created
     description: >
       ValidatorCreated events from the Monad staking precompile (0x0000000000000000000000000000000000001000).
       Emitted when a new validator is added via addValidator(). The validator must provide unique BLS and SECP keys,
@@ -59,7 +59,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (addValidator)
 
-      - name: FACT_STAKING_VALIDATORS_CREATED_ID
+      - name: FACT_VALIDATORS_CREATED_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -71,7 +71,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_delegations
+  - name: gov__fact_delegations
     description: >
       Delegate events from the Monad staking precompile. Emitted when delegate() is called to increase
       stake to a validator. Also emitted during addValidator() and compound() which implicitly delegate.
@@ -141,7 +141,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (delegate)
 
-      - name: FACT_STAKING_DELEGATIONS_ID
+      - name: FACT_DELEGATIONS_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -153,7 +153,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_undelegations
+  - name: gov__fact_undelegations
     description: >
       Undelegate events from the Monad staking precompile. Emitted when undelegate() is called to begin
       withdrawing stake. Moves amount from delegator's active stake to a withdrawal request object.
@@ -211,7 +211,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (undelegate)
 
-      - name: FACT_STAKING_UNDELEGATIONS_ID
+      - name: FACT_UNDELEGATIONS_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -223,7 +223,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_withdrawals
+  - name: gov__fact_withdrawals
     description: >
       Withdraw events from the Monad staking precompile. Emitted when withdraw() is called to complete
       an undelegation and receive funds. Can only be called after WITHDRAWAL_DELAY epochs have passed
@@ -276,7 +276,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (withdraw)
 
-      - name: FACT_STAKING_WITHDRAWALS_ID
+      - name: FACT_WITHDRAWALS_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -288,13 +288,13 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_validator_rewards
+  - name: gov__fact_validator_rewards
     description: >
       ValidatorRewarded events emitted by syscallReward for every block. When a validator produces a block,
       the REWARD constant is split: commission% goes to the validator's auth_address delegator rewards,
       and the remainder (this amount) is added to unclaimed_rewards pool for all delegators. The amount
       here represents the DELEGATOR portion after commission - to get validator earnings, use
-      fact_staking_validator_earnings which tracks via getDelegator snapshots.
+      fact_validator_earnings which tracks via getDelegator snapshots.
 
     columns:
       - name: BLOCK_NUMBER
@@ -356,7 +356,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (syscallReward)
 
-      - name: FACT_STAKING_VALIDATOR_REWARDS_ID
+      - name: FACT_VALIDATOR_REWARDS_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -368,7 +368,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_rewards_claimed
+  - name: gov__fact_rewards_claimed
     description: >
       ClaimRewards events emitted when claimRewards() is called to withdraw accumulated rewards.
       Claims from the delegator struct's rewards field, which includes BOTH proportional staking rewards
@@ -421,7 +421,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (claimRewards)
 
-      - name: FACT_STAKING_REWARDS_CLAIMED_ID
+      - name: FACT_REWARDS_CLAIMED_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -433,7 +433,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_commission_changes
+  - name: gov__fact_validator_commission_changes
     description: >
       CommissionChanged events emitted when changeCommission() is called by a validator's auth_address.
       Only the auth_address can change commission for a validator. Commission cannot exceed MAX_COMMISSION (100%).
@@ -477,7 +477,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (changeCommission)
 
-      - name: FACT_STAKING_COMMISSION_CHANGES_ID
+      - name: FACT_VALIDATOR_COMMISSION_CHANGES_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -489,7 +489,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_validator_status_changes
+  - name: gov__fact_validator_status_changes
     description: >
       ValidatorStatusChanged events emitted when a validator's flags change during addValidator(),
       delegate(), undelegate(), or compound(). Flags indicate validator eligibility status:
@@ -533,7 +533,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature
 
-      - name: FACT_STAKING_VALIDATOR_STATUS_CHANGES_ID
+      - name: FACT_VALIDATOR_STATUS_CHANGES_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -545,7 +545,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_epoch_changes
+  - name: gov__fact_epoch_changes
     description: >
       EpochChanged events emitted by syscallOnEpochChange at the end of epoch delay rounds.
       Marks the transition between epochs. At this point: pending stake changes from previous epoch
@@ -587,7 +587,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: Function signature (syscallOnEpochChange)
 
-      - name: FACT_STAKING_EPOCH_CHANGES_ID
+      - name: FACT_EPOCH_CHANGES_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -599,7 +599,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__ez_staking_validator_totals_daily
+  - name: gov__ez_validator_totals_daily
     description: >
       Daily staking totals rolled up to the validator level. Aggregates all delegator balances
       per validator per day. Includes total active stake, pending withdrawals, delegator counts,
@@ -651,7 +651,7 @@ models:
       - name: MON_PRICE_USD
         description: End of day MON price in USD used for valuations
 
-      - name: EZ_STAKING_VALIDATOR_TOTALS_DAILY_ID
+      - name: EZ_VALIDATOR_TOTALS_DAILY_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -707,7 +707,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__ez_staking_validator_self_stake
+  - name: gov__ez_validator_self_stake
     description: >
       Daily view showing the percentage of each validator's total stake that is self-staked
       (where validator auth_address equals delegator_address). Useful for analyzing validator
@@ -753,7 +753,7 @@ models:
       - name: SELF_STAKE_PCT_OF_TOTAL
         description: Percentage of total stake at risk that is self-staked by the validator
 
-  - name: gov__dim_staking_epochs
+  - name: gov__dim_epochs
     description: >
       Dimension table for staking epochs. Each epoch starts when the EpochChanged event fires.
       Block ranges are derived from consecutive epoch change events. Epochs are variable length
@@ -784,7 +784,7 @@ models:
       - name: EPOCH_CHANGE_TX_HASH
         description: Transaction hash of the EpochChanged event that started this epoch
 
-  - name: gov__ez_staking_block_production
+  - name: gov__ez_block_production
     description: >
       Block production metrics per validator per epoch. Tracks how many blocks each validator
       produced along with gas and transaction metrics. Block producer is identified from
@@ -830,13 +830,13 @@ models:
       - name: LAST_BLOCK_TIMESTAMP
         description: Timestamp of last block produced
 
-      - name: EZ_STAKING_BLOCK_PRODUCTION_ID
+      - name: EZ_BLOCK_PRODUCTION_ID
         description: Unique identifier for this record
         tests:
           - unique
           - not_null
 
-  - name: gov__ez_staking_validator_balances_daily
+  - name: gov__ez_validator_balances_daily
     description: >
       Daily wallet balances for validator addresses (auth_address from ValidatorCreated events).
       Forward fills missing days from ez_balances_native_daily since that table only has rows
@@ -873,7 +873,7 @@ models:
       - name: IS_FORWARD_FILLED
         description: Whether this row was forward filled from a previous day (no balance change on this day)
 
-      - name: EZ_STAKING_VALIDATOR_BALANCES_DAILY_ID
+      - name: EZ_VALIDATOR_BALANCES_DAILY_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -885,7 +885,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__ez_staking_validator_epoch_performance
+  - name: gov__ez_validator_epoch_performance
     description: >
       Validator performance per epoch comparing expected vs actual block production.
       Shows all validators in the snapshot set with their actual blocks produced,
@@ -945,7 +945,7 @@ models:
       - name: EPOCH_END_TIMESTAMP
         description: Timestamp when the epoch ended
 
-      - name: EZ_STAKING_VALIDATOR_EPOCH_PERFORMANCE_ID
+      - name: EZ_VALIDATOR_EPOCH_PERFORMANCE_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -957,12 +957,12 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__fact_staking_validator_snapshots
+  - name: gov__fact_validator_snapshots
     description: >
       Parsed daily validator snapshots from getValidator() LiveQuery calls. Returns ValExecution struct
       (realtime execution state), plus consensus and snapshot stake/commission. Note: unclaimed_rewards
       here is the DELEGATOR REWARD POOL (total undistributed rewards for all delegators), NOT the
-      validator's personal earnings. For validator earnings, use fact_staking_validator_earnings which
+      validator's personal earnings. For validator earnings, use fact_validator_earnings which
       uses getDelegator snapshots.
 
     columns:
@@ -1012,7 +1012,7 @@ models:
       - name: UNCLAIMED_REWARDS
         description: >
           Delegator reward pool in MON. This is NOT validator earnings - it's the pool from which all
-          delegators claim. For validator earnings, use fact_staking_validator_earnings.
+          delegators claim. For validator earnings, use fact_validator_earnings.
 
       - name: UNCLAIMED_REWARDS_USD
         description: Delegator reward pool value in USD
@@ -1056,7 +1056,7 @@ models:
       - name: MON_PRICE_USD
         description: End of day MON price in USD used for valuations
 
-      - name: FACT_STAKING_VALIDATOR_SNAPSHOTS_ID
+      - name: FACT_VALIDATOR_SNAPSHOTS_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -1068,7 +1068,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__ez_staking_validator_earnings
+  - name: gov__ez_validator_earnings
     description: >
       Daily validator total earnings calculated as claimed rewards plus the change
       in unclaimed balance from the prior day. Uses getDelegator snapshot which captures
@@ -1122,13 +1122,13 @@ models:
       - name: PREV_SNAPSHOT_DATE
         description: Date of the prior snapshot used for unclaimed change calculation
 
-      - name: EZ_STAKING_VALIDATOR_EARNINGS_ID
+      - name: EZ_VALIDATOR_EARNINGS_ID
         description: Unique identifier for this record
         tests:
           - unique
           - not_null
 
-  - name: gov__fact_staking_validator_self_delegation_snapshots
+  - name: gov__fact_validator_self_delegation_snapshots
     description: >
       Parsed daily validator self-delegation snapshots from getDelegator(validatorId, auth_address) LiveQuery calls.
       Returns the DelInfo struct for the validator's own delegation. This captures the validator's TOTAL earnings
@@ -1200,7 +1200,7 @@ models:
       - name: MON_PRICE_USD
         description: End of day MON price in USD used for valuations
 
-      - name: FACT_STAKING_VALIDATOR_SELF_DELEGATION_SNAPSHOTS_ID
+      - name: FACT_VALIDATOR_SELF_DELEGATION_SNAPSHOTS_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -1212,7 +1212,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: Timestamp when the record was last modified
 
-  - name: gov__ez_staking_validator_apr
+  - name: gov__ez_validator_apr
     description: >
       Daily and rolling APR/APY calculations per validator. APR = (daily_earnings / stake) * 365.
       Includes 7-day and 30-day rolling averages for smoothed metrics.
@@ -1260,7 +1260,7 @@ models:
       - name: APR_30D_ROLLING_PCT
         description: 30-day rolling average APR
 
-      - name: EZ_STAKING_VALIDATOR_APR_ID
+      - name: EZ_VALIDATOR_APR_ID
         description: Unique identifier for this record
         tests:
           - unique
@@ -1305,7 +1305,7 @@ models:
           - unique
           - not_null
 
-  - name: gov__ez_staking_net_stake_changes
+  - name: gov__ez_net_stake_changes
     description: >
       Daily net stake changes per validator. Calculates delegations minus undelegations
       to show net flow direction and cumulative changes over time.
@@ -1353,13 +1353,13 @@ models:
       - name: CUMULATIVE_NET_CHANGE
         description: Running total of net stake changes
 
-      - name: EZ_STAKING_NET_STAKE_CHANGES_ID
+      - name: EZ_NET_STAKE_CHANGES_ID
         description: Unique identifier for this record
         tests:
           - unique
           - not_null
 
-  - name: gov__ez_staking_miss_rate
+  - name: gov__ez_miss_rate
     description: >
       Miss rate and estimated commission impact per validator per epoch.
       Calculates missed blocks and estimates lost commission based on average daily earnings.
@@ -1428,13 +1428,13 @@ models:
       - name: EPOCH_END_TIMESTAMP
         description: When the epoch ended
 
-      - name: EZ_STAKING_MISS_RATE_ID
+      - name: EZ_MISS_RATE_ID
         description: Unique identifier for this record
         tests:
           - unique
           - not_null
 
-  - name: gov__ez_staking_restart_impact
+  - name: gov__ez_restart_impact
     description: >
       Restart impact estimates per validator. Calculates expected missed blocks and
       commission loss for different restart durations (5, 15, 30 min, 1 hour).
@@ -1512,13 +1512,13 @@ models:
       - name: LOSS_USD_1HR
         description: Estimated commission loss for 1-hour restart in USD
 
-      - name: EZ_STAKING_RESTART_IMPACT_ID
+      - name: EZ_RESTART_IMPACT_ID
         description: Unique identifier for this record
         tests:
           - unique
           - not_null
 
-  - name: gov__ez_staking_compound_decision
+  - name: gov__ez_compound_decision
     description: >
       Compound vs sell decision support data per validator. Aggregates unclaimed rewards,
       price trends, volatility, and claim activity to provide actionable insights.
@@ -1593,13 +1593,13 @@ models:
       - name: RECOMMENDATION
         description: Simple rule-based recommendation (sell, compound, hold, etc.)
 
-      - name: EZ_STAKING_COMPOUND_DECISION_ID
+      - name: EZ_COMPOUND_DECISION_ID
         description: Unique identifier for this record
         tests:
           - unique
           - not_null
 
-  - name: gov__dim_staking_validators
+  - name: gov__dim_validators
     description: >
       Dimension table for Monad validators. Combines validator creation data, address mappings,
       latest snapshot state, and labels to provide a complete validator profile. Key addresses:
@@ -1667,7 +1667,7 @@ models:
       - name: LATEST_SNAPSHOT_DATE
         description: Date of the most recent validator snapshot
 
-      - name: DIM_STAKING_VALIDATORS_ID
+      - name: GOV__DIM_VALIDATORS_ID
         description: Unique identifier for this record
         tests:
           - unique

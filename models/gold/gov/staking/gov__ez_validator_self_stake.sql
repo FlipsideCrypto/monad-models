@@ -14,7 +14,7 @@ WITH validator_auth_addresses AS (
         validator_id,
         auth_address
     FROM
-        {{ ref('gov__fact_staking_validators_created') }}
+        {{ ref('gov__fact_validators_created') }}
 ),
 
 daily_balances AS (
@@ -86,7 +86,7 @@ INNER JOIN
     validator_auth_addresses va
     ON vt.validator_id = va.validator_id
 LEFT JOIN
-    {{ ref('gov__dim_staking_validators') }} v
+    {{ ref('gov__dim_validators') }} v
     ON vt.validator_id = v.validator_id
 LEFT JOIN
     self_stake ss

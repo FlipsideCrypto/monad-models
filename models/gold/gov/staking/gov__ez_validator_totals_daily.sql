@@ -61,11 +61,11 @@ SELECT
     vt.delegator_count,
     vt.active_delegator_count,
     p.mon_price_usd,
-    {{ dbt_utils.generate_surrogate_key(['vt.balance_date', 'vt.validator_id']) }} AS ez_staking_validator_totals_daily_id
+    {{ dbt_utils.generate_surrogate_key(['vt.balance_date', 'vt.validator_id']) }} AS ez_validator_totals_daily_id
 FROM
     validator_totals vt
 LEFT JOIN
-    {{ ref('gov__dim_staking_validators') }} v
+    {{ ref('gov__dim_validators') }} v
     ON vt.validator_id = v.validator_id
 LEFT JOIN
     prices p

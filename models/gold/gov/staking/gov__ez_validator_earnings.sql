@@ -30,7 +30,7 @@ WITH daily_self_delegation AS (
         mon_price_usd,
         LAG(unclaimed_rewards) OVER (PARTITION BY validator_id ORDER BY snapshot_date) AS prev_unclaimed,
         LAG(snapshot_date) OVER (PARTITION BY validator_id ORDER BY snapshot_date) AS prev_snapshot_date
-    FROM {{ ref('gov__fact_staking_validator_self_delegation_snapshots') }}
+    FROM {{ ref('gov__fact_validator_self_delegation_snapshots') }}
 ),
 
 daily_claims AS (
@@ -41,8 +41,8 @@ daily_claims AS (
         SUM(rc.amount) AS claimed_amount,
         SUM(rc.amount_raw) AS claimed_amount_raw,
         COUNT(*) AS claim_count
-    FROM {{ ref('gov__fact_staking_rewards_claimed') }} rc
-    INNER JOIN {{ ref('gov__fact_staking_validators_created') }} vc
+    FROM {{ ref('gov__fact_rewards_claimed') }} rc
+    INNER JOIN {{ ref('gov__fact_validators_created') }} vc
         ON rc.validator_id = vc.validator_id
         AND rc.delegator_address = vc.auth_address
     GROUP BY 1, 2
@@ -83,12 +83,12 @@ SELECT
 
     -- Metadata
     s.prev_snapshot_date,
-    {{ dbt_utils.generate_surrogate_key(['s.validator_id', 's.snapshot_date']) }} AS ez_staking_validator_earnings_id
+    {{ dbt_utils.generate_surrogate_key(['s.validator_id', 's.snapshot_date']) }} AS ez_validator_earnings_id
 
 FROM daily_self_delegation s
 LEFT JOIN daily_claims c
     ON s.validator_id = c.validator_id
     AND s.snapshot_date = c.claim_date
-LEFT JOIN {{ ref('gov__dim_staking_validators') }} v
+LEFT JOIN {{ ref('gov__dim_validators') }} v
     ON s.validator_id = v.validator_id
 WHERE s.prev_unclaimed IS NOT NULL  -- Exclude first day (no prior comparison)

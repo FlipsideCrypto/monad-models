@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "ez_staking_validator_balances_daily_id",
+    unique_key = "ez_validator_balances_daily_id",
     cluster_by = ['balance_date'],
     tags = ['gov', 'curated_daily']
 ) }}
@@ -18,7 +18,7 @@ WITH validators AS (
         validator_id,
         LOWER(auth_address) AS validator_address
     FROM
-        {{ ref('gov__fact_staking_validators_created') }}
+        {{ ref('gov__fact_validators_created') }}
 ),
 
 date_spine AS (
@@ -123,13 +123,13 @@ SELECT
     p.price AS mon_price_usd,
     ROUND(ff.balance * p.price, 2) AS balance_usd,
     ff.is_forward_filled,
-    {{ dbt_utils.generate_surrogate_key(['ff.balance_date', 'ff.validator_id']) }} AS ez_staking_validator_balances_daily_id,
+    {{ dbt_utils.generate_surrogate_key(['ff.balance_date', 'ff.validator_id']) }} AS ez_validator_balances_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
     forward_filled ff
 LEFT JOIN
-    {{ ref('gov__dim_staking_validators') }} v
+    {{ ref('gov__dim_validators') }} v
     ON ff.validator_id = v.validator_id
 LEFT JOIN
     prices p

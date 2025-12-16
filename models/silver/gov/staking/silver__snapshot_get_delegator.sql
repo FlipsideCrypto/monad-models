@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "staking_snapshot_get_delegator_id",
+    unique_key = "snapshot_get_delegator_id",
     cluster_by = ['snapshot_date'],
     tags = ['gov', 'curated_daily']
 ) }}
@@ -34,7 +34,7 @@ WITH validators AS (
         validator_id,
         auth_address
     FROM
-        {{ ref('gov__fact_staking_validators_created') }}
+        {{ ref('gov__fact_validators_created') }}
 ),
 
 -- Get last block for one day (oldest missing day in last 16 days)
@@ -104,7 +104,7 @@ SELECT
         ),
         'Vault/prod/evm/quicknode/monad/mainnet'
     ) AS response,
-    {{ dbt_utils.generate_surrogate_key(['snapshot_date', 'validator_id']) }} AS staking_snapshot_get_delegator_id,
+    {{ dbt_utils.generate_surrogate_key(['snapshot_date', 'validator_id']) }} AS snapshot_get_delegator_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
