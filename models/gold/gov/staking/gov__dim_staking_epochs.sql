@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*

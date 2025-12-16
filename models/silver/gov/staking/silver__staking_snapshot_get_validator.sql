@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "staking_snapshot_get_validator_id",
     cluster_by = ['snapshot_date'],
-    tags = ['silver', 'gov', 'staking', 'livequery', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -40,16 +40,16 @@ last_blocks AS (
         block_timestamp::DATE AS snapshot_date,
         MAX(block_number) AS last_block_number
     FROM
-        {{ ref('core__fact_blocks') }}
+       monad.core.fact_blocks-- {{ ref('core__fact_blocks') }}
     WHERE
         block_timestamp::DATE >= DATEADD('day', -7, CURRENT_DATE)
         AND block_timestamp::DATE < CURRENT_DATE
-{# {% if is_incremental() %}
+{% if is_incremental() %}
         AND block_timestamp::DATE NOT IN (SELECT DISTINCT snapshot_date FROM {{ this }})
-{% endif %} #}
+{% endif %}
     GROUP BY 1
     ORDER BY 1
-    LIMIT 1  -- Process one day at a time to control API usage
+    LIMIT 3  -- Process one day at a time to control API usage
 ),
 
 -- Cross join validators with dates

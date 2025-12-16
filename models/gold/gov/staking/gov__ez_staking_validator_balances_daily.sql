@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "ez_staking_validator_balances_daily_id",
     cluster_by = ['balance_date'],
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -108,24 +108,29 @@ prices AS (
     FROM
         {{ ref('price__ez_prices_hourly') }}
     WHERE
-        is_native = TRUE
+        token_address = '0x0000000000000000000000000000000000000000'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY hour::DATE ORDER BY hour DESC) = 1
 )
 
 SELECT
     ff.balance_date,
     ff.validator_id,
+    v.validator_name,
+    v.consensus_address,
     ff.validator_address,
     ff.balance,
     ff.balance_raw,
     p.price AS mon_price_usd,
     ROUND(ff.balance * p.price, 2) AS balance_usd,
     ff.is_forward_filled,
-    {{ dbt_utils.generate_surrogate_key(['balance_date', 'validator_id']) }} AS ez_staking_validator_balances_daily_id,
+    {{ dbt_utils.generate_surrogate_key(['ff.balance_date', 'ff.validator_id']) }} AS ez_staking_validator_balances_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
     forward_filled ff
+LEFT JOIN
+    {{ ref('gov__dim_staking_validators') }} v
+    ON ff.validator_id = v.validator_id
 LEFT JOIN
     prices p
     ON ff.balance_date = p.price_date

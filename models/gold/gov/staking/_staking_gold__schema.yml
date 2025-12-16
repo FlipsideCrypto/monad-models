@@ -615,6 +615,9 @@ models:
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
 
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
       - name: TOTAL_ACTIVE_STAKE
         description: Sum of all delegators' active stake for this validator in MON
 
@@ -668,6 +671,12 @@ models:
       - name: VALIDATOR_ID
         description: ID of the validator
 
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
       - name: DELEGATOR_ADDRESS
         description: Address of the delegator
 
@@ -710,6 +719,12 @@ models:
 
       - name: VALIDATOR_ID
         description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
 
       - name: VALIDATOR_ADDRESS
         description: Auth address of the validator
@@ -772,36 +787,36 @@ models:
   - name: gov__ez_staking_block_production
     description: >
       Block production metrics per validator per epoch. Tracks how many blocks each validator
-      produced along with gas and transaction metrics. Joins to dim_staking_validators via
-      consensus_address to get validator_id and name.
+      produced along with gas and transaction metrics. Block producer is identified from
+      ValidatorRewarded events where the first event per block indicates the block producer.
 
     columns:
       - name: EPOCH
         description: Epoch number
 
       - name: VALIDATOR_ID
-        description: ID of the validator (NULL if consensus_address not yet mapped)
+        description: ID of the validator who produced blocks
 
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
 
       - name: CONSENSUS_ADDRESS
-        description: Address of the validator (miner) that produced the blocks
+        description: Block producer address derived from secp_pubkey
+
+      - name: AUTH_ADDRESS
+        description: The validator's administrative/withdrawal address
 
       - name: BLOCKS_PRODUCED
         description: Number of blocks produced by this validator in this epoch
 
-      - name: TOTAL_GAS_USED
-        description: Total gas used across all blocks produced
+      - name: TOTAL_BLOCK_REWARDS
+        description: Total block rewards earned by this validator in this epoch (in MON)
 
-      - name: AVG_GAS_PER_BLOCK
-        description: Average gas used per block
+      - name: TOTAL_BLOCK_REWARDS_RAW
+        description: Total block rewards in wei
 
-      - name: TOTAL_TRANSACTIONS
-        description: Total transactions across all blocks produced
-
-      - name: AVG_TX_PER_BLOCK
-        description: Average transactions per block
+      - name: AVG_REWARD_PER_BLOCK
+        description: Average reward per block produced (in MON)
 
       - name: FIRST_BLOCK_PRODUCED
         description: First block number produced by this validator in this epoch
@@ -833,6 +848,12 @@ models:
 
       - name: VALIDATOR_ID
         description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
 
       - name: VALIDATOR_ADDRESS
         description: Wallet address of the validator (auth_address)
@@ -879,6 +900,12 @@ models:
       - name: VALIDATOR_ID
         description: ID of the validator from the snapshot set
 
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
       - name: VALIDATOR_POSITION
         description: Position of validator in the snapshot set
 
@@ -906,17 +933,11 @@ models:
       - name: PRODUCTION_RANK
         description: Rank of validator by blocks produced within this epoch (1 = most blocks)
 
-      - name: TOTAL_GAS_USED
-        description: Total gas used across all blocks produced by this validator
+      - name: TOTAL_BLOCK_REWARDS
+        description: Total block rewards earned by this validator in this epoch (in MON)
 
-      - name: AVG_GAS_PER_BLOCK
-        description: Average gas per block for this validator
-
-      - name: TOTAL_TRANSACTIONS
-        description: Total transactions across all blocks produced
-
-      - name: AVG_TX_PER_BLOCK
-        description: Average transactions per block
+      - name: AVG_REWARD_PER_BLOCK
+        description: Average reward per block produced (in MON)
 
       - name: EPOCH_START_TIMESTAMP
         description: Timestamp when the epoch started
@@ -1062,6 +1083,9 @@ models:
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
 
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
       - name: EARNING_DATE
         description: Date of the earnings (from snapshot)
 
@@ -1200,6 +1224,9 @@ models:
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
 
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
       - name: EARNING_DATE
         description: Date of the APR calculation
 
@@ -1254,6 +1281,9 @@ models:
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
 
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
       - name: DELEGATOR_ADDRESS
         description: Address of the delegator
 
@@ -1286,6 +1316,9 @@ models:
 
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
 
       - name: CHANGE_DATE
         description: Date of the stake change
@@ -1337,6 +1370,12 @@ models:
 
       - name: VALIDATOR_ID
         description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
 
       - name: VALIDATOR_ADDRESS
         description: Validator's authority address
@@ -1404,14 +1443,23 @@ models:
       - name: VALIDATOR_ID
         description: ID of the validator
 
-      - name: VALIDATOR_ADDRESS
-        description: Validator's authority address
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority/withdrawal address
 
       - name: AVG_BLOCKS_PER_EPOCH
         description: Average blocks produced per epoch (recent 10 epochs)
 
       - name: AVG_PCT_SHARE
         description: Average percentage of blocks produced
+
+      - name: AVG_REWARDS_PER_EPOCH
+        description: Average block rewards earned per epoch (recent 10 epochs)
 
       - name: EPOCHS_ANALYZED
         description: Number of epochs used for averages
@@ -1423,7 +1471,7 @@ models:
         description: Average epoch duration in seconds
 
       - name: AVG_DAILY_COMMISSION_MON
-        description: Average daily commission (recent 7 days)
+        description: Average daily commission (recent 30 days)
 
       - name: MON_PRICE_USD
         description: Current MON price
@@ -1481,6 +1529,9 @@ models:
 
       - name: VALIDATOR_NAME
         description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
 
       - name: SNAPSHOT_DATE
         description: Date of the snapshot

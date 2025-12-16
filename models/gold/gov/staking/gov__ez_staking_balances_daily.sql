@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "ez_staking_balances_daily_id",
     cluster_by = ['balance_date'],
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -139,21 +139,26 @@ balances AS (
 )
 
 SELECT
-    balance_date,
-    validator_id,
-    delegator_address,
-    active_balance,
-    pending_withdrawal_balance,
-    active_balance + pending_withdrawal_balance AS total_balance_at_risk,
-    daily_active_change,
-    daily_pending_change,
-    {{ dbt_utils.generate_surrogate_key(['balance_date', 'validator_id', 'delegator_address']) }} AS ez_staking_balances_daily_id,
+    b.balance_date,
+    b.validator_id,
+    v.validator_name,
+    v.consensus_address,
+    b.delegator_address,
+    b.active_balance,
+    b.pending_withdrawal_balance,
+    b.active_balance + b.pending_withdrawal_balance AS total_balance_at_risk,
+    b.daily_active_change,
+    b.daily_pending_change,
+    {{ dbt_utils.generate_surrogate_key(['b.balance_date', 'b.validator_id', 'b.delegator_address']) }} AS ez_staking_balances_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    balances
+    balances b
+LEFT JOIN
+    {{ ref('gov__dim_staking_validators') }} v
+    ON b.validator_id = v.validator_id
 WHERE
-    active_balance != 0
-    OR pending_withdrawal_balance != 0
-    OR daily_active_change != 0
-    OR daily_pending_change != 0
+    b.active_balance != 0
+    OR b.pending_withdrawal_balance != 0
+    OR b.daily_active_change != 0
+    OR b.daily_pending_change != 0

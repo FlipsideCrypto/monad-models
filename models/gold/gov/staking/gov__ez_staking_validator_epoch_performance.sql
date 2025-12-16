@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "ez_staking_validator_epoch_performance_id",
     cluster_by = ['epoch'],
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -64,12 +64,9 @@ block_production AS (
     SELECT
         epoch,
         validator_id,
-        LOWER(consensus_address) AS consensus_address,
         blocks_produced,
-        total_gas_used,
-        avg_gas_per_block,
-        total_transactions,
-        avg_tx_per_block
+        total_block_rewards,
+        avg_reward_per_block
     FROM
         {{ ref('gov__ez_staking_block_production') }}
 {% if is_incremental() %}
@@ -108,10 +105,8 @@ validator_performance AS (
         sv.validator_position,
         sv.validator_address,
         COALESCE(bp.blocks_produced, 0) AS blocks_produced,
-        COALESCE(bp.total_gas_used, 0) AS total_gas_used,
-        COALESCE(bp.avg_gas_per_block, 0) AS avg_gas_per_block,
-        COALESCE(bp.total_transactions, 0) AS total_transactions,
-        COALESCE(bp.avg_tx_per_block, 0) AS avg_tx_per_block,
+        COALESCE(bp.total_block_rewards, 0) AS total_block_rewards,
+        COALESCE(bp.avg_reward_per_block, 0) AS avg_reward_per_block,
         vpe.validator_count,
         bpe.total_blocks_in_epoch,
         ei.epoch_block_count,
@@ -135,25 +130,28 @@ validator_performance AS (
 )
 
 SELECT
-    epoch,
-    validator_id,
-    validator_position,
-    validator_address,
-    validator_count AS validators_in_snapshot,
-    epoch_block_count AS total_epoch_blocks,
-    ROUND(epoch_block_count / NULLIF(validator_count, 0), 2) AS expected_blocks_per_validator,
-    blocks_produced AS actual_blocks_produced,
-    blocks_produced - ROUND(epoch_block_count / NULLIF(validator_count, 0), 0) AS blocks_vs_expected,
-    ROUND(100.0 * blocks_produced / NULLIF(epoch_block_count, 0), 4) AS pct_of_epoch_blocks,
-    RANK() OVER (PARTITION BY epoch ORDER BY blocks_produced DESC) AS production_rank,
-    total_gas_used,
-    avg_gas_per_block,
-    total_transactions,
-    avg_tx_per_block,
-    epoch_start_timestamp,
-    epoch_end_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['epoch', 'validator_id']) }} AS ez_staking_validator_epoch_performance_id,
+    vp.epoch,
+    vp.validator_id,
+    v.validator_name,
+    v.consensus_address,
+    vp.validator_position,
+    vp.validator_address,
+    vp.validator_count AS validators_in_snapshot,
+    vp.epoch_block_count AS total_epoch_blocks,
+    ROUND(vp.epoch_block_count / NULLIF(vp.validator_count, 0), 2) AS expected_blocks_per_validator,
+    vp.blocks_produced AS actual_blocks_produced,
+    vp.blocks_produced - ROUND(vp.epoch_block_count / NULLIF(vp.validator_count, 0), 0) AS blocks_vs_expected,
+    ROUND(100.0 * vp.blocks_produced / NULLIF(vp.epoch_block_count, 0), 4) AS pct_of_epoch_blocks,
+    RANK() OVER (PARTITION BY vp.epoch ORDER BY vp.blocks_produced DESC) AS production_rank,
+    vp.total_block_rewards,
+    vp.avg_reward_per_block,
+    vp.epoch_start_timestamp,
+    vp.epoch_end_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['vp.epoch', 'vp.validator_id']) }} AS ez_staking_validator_epoch_performance_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    validator_performance
+    validator_performance vp
+LEFT JOIN
+    {{ ref('gov__dim_staking_validators') }} v
+    ON vp.validator_id = v.validator_id

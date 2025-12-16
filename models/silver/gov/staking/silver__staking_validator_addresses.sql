@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "staking_validator_addresses_id",
     cluster_by = ['validator_id'],
-    tags = ['silver', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*

@@ -1,78 +1,69 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
 Block production metrics per validator per epoch.
-Tracks how many blocks each validator produced along with gas and transaction metrics.
+Tracks how many blocks each validator produced along with reward metrics.
 
-Links blocks to validators by matching the block's miner address to the validator's
-consensus_address (derived from their secp256k1 public key).
+Block producer is identified from ValidatorRewarded events where:
+- origin_to_address = staking precompile (0x0000000000000000000000000000000000001000)
 
-Note: ValidatorRewarded events are NOT a reliable source for block production attribution.
-Those events represent staking rewards distributed to many validators per block, not the
-block producer.
+Each ValidatorRewarded event with origin_to_address = staking precompile represents
+a block produced by that validator.
 */
 
-WITH blocks_with_producer AS (
+WITH block_producers AS (
     SELECT
-        b.block_number,
-        b.block_timestamp,
-        LOWER(b.miner) AS miner_address,
-        b.gas_used,
-        b.tx_count,
-        e.epoch,
-        v.validator_id,
-        v.validator_name
+        r.block_number,
+        r.block_timestamp,
+        r.validator_id,
+        r.epoch,
+        r.amount,
+        r.amount_raw
     FROM
-        {{ ref('core__fact_blocks') }} b
-    INNER JOIN
-        {{ ref('gov__dim_staking_epochs') }} e
-        ON b.block_number BETWEEN e.epoch_start_block AND e.epoch_end_block
-    LEFT JOIN
-        {{ ref('gov__dim_staking_validators') }} v
-        ON LOWER(b.miner) = LOWER(v.consensus_address)
+        {{ ref('gov__fact_staking_validator_rewards') }} r
+    WHERE
+        r.origin_to_address = '0x0000000000000000000000000000000000001000'
 ),
 
 aggregated AS (
     SELECT
         epoch,
         validator_id,
-        validator_name,
-        miner_address AS consensus_address,
         COUNT(*) AS blocks_produced,
-        SUM(gas_used) AS total_gas_used,
-        AVG(gas_used) AS avg_gas_per_block,
-        SUM(tx_count) AS total_transactions,
-        AVG(tx_count) AS avg_tx_per_block,
+        SUM(amount) AS total_block_rewards,
+        SUM(amount_raw) AS total_block_rewards_raw,
+        AVG(amount) AS avg_reward_per_block,
         MIN(block_number) AS first_block_produced,
         MAX(block_number) AS last_block_produced,
         MIN(block_timestamp) AS first_block_timestamp,
         MAX(block_timestamp) AS last_block_timestamp
     FROM
-        blocks_with_producer
+        block_producers
     GROUP BY
         epoch,
-        validator_id,
-        validator_name,
-        miner_address
+        validator_id
 )
 
 SELECT
-    epoch,
-    validator_id,
-    validator_name,
-    consensus_address,
-    blocks_produced,
-    total_gas_used,
-    avg_gas_per_block,
-    total_transactions,
-    avg_tx_per_block,
-    first_block_produced,
-    last_block_produced,
-    first_block_timestamp,
-    last_block_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['epoch', 'validator_id', 'consensus_address']) }} AS ez_staking_block_production_id
+    a.epoch,
+    a.validator_id,
+    v.validator_name,
+    v.consensus_address,
+    v.auth_address,
+    a.blocks_produced,
+    a.total_block_rewards,
+    a.total_block_rewards_raw,
+    a.avg_reward_per_block,
+    a.first_block_produced,
+    a.last_block_produced,
+    a.first_block_timestamp,
+    a.last_block_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['a.epoch', 'a.validator_id']) }} AS ez_staking_block_production_id
 FROM
-    aggregated
+    aggregated a
+LEFT JOIN
+    {{ ref('gov__dim_staking_validators') }} v
+    ON a.validator_id = v.validator_id

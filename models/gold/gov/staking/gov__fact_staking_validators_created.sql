@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "fact_staking_validators_created_id",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 -- ValidatorCreated: validatorId (indexed), authAddress (indexed), commission

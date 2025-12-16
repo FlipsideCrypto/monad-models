@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -41,7 +41,7 @@ prices AS (
     FROM
         {{ ref('price__ez_prices_hourly') }}
     WHERE
-        is_native = TRUE
+        token_address = '0x0000000000000000000000000000000000000000'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY hour::DATE ORDER BY hour DESC) = 1
 )
 
@@ -49,6 +49,7 @@ SELECT
     vt.balance_date,
     vt.validator_id,
     v.validator_name,
+    v.consensus_address,
     vt.total_active_stake,
     ROUND(vt.total_active_stake * p.mon_price_usd, 2) AS total_active_stake_usd,
     vt.total_pending_withdrawal,

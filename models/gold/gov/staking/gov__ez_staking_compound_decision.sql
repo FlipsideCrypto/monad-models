@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -36,7 +36,7 @@ price_trend AS (
         MIN(CASE WHEN hour >= DATEADD('day', -30, CURRENT_TIMESTAMP) THEN price END) AS price_30d_low,
         MAX(CASE WHEN hour >= DATEADD('day', -30, CURRENT_TIMESTAMP) THEN price END) AS price_30d_high
     FROM {{ ref('price__ez_prices_hourly') }}
-    WHERE is_native = TRUE
+    WHERE token_address = '0x0000000000000000000000000000000000000000'
       AND hour >= DATEADD('day', -30, CURRENT_TIMESTAMP)
 ),
 
@@ -67,6 +67,7 @@ recent_earnings AS (
 SELECT
     s.validator_id,
     v.validator_name,
+    v.consensus_address,
     s.snapshot_date,
 
     -- Current unclaimed balance

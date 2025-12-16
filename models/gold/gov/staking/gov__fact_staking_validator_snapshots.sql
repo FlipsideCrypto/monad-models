@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "fact_staking_validator_snapshots_id",
     cluster_by = ['snapshot_date'],
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -23,7 +23,7 @@ WITH prices AS (
     FROM
         {{ ref('price__ez_prices_hourly') }}
     WHERE
-        is_native = TRUE
+        token_address = '0x0000000000000000000000000000000000000000'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY hour::DATE ORDER BY hour DESC) = 1
 ),
 

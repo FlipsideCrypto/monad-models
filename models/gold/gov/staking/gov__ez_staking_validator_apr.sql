@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -31,6 +31,7 @@ WITH daily_data AS (
 SELECT
     d.validator_id,
     v.validator_name,
+    v.consensus_address,
     d.earning_date,
     d.total_earned,
     d.total_earned_usd,

@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -40,16 +40,21 @@ avg_daily_commission AS (
 
 current_price AS (
     SELECT
-        price AS mon_price_usd
-    FROM {{ ref('price__ez_prices_hourly') }}
-    WHERE is_native = TRUE
-    ORDER BY hour DESC
-    LIMIT 1
+        COALESCE(
+            (SELECT price
+             FROM {{ ref('price__ez_prices_hourly') }}
+             WHERE token_address = '0x0000000000000000000000000000000000000000'
+             ORDER BY hour DESC
+             LIMIT 1),
+            0
+        ) AS mon_price_usd
 )
 
 SELECT
     p.epoch,
     p.validator_id,
+    v.validator_name,
+    v.consensus_address,
     p.validator_address,
     p.validators_in_snapshot,
     p.total_epoch_blocks,
@@ -100,5 +105,6 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['p.epoch', 'p.validator_id']) }} AS ez_staking_miss_rate_id
 
 FROM performance p
+LEFT JOIN {{ ref('gov__dim_staking_validators') }} v ON p.validator_id = v.validator_id
 LEFT JOIN avg_daily_commission c ON p.validator_id = c.validator_id
 CROSS JOIN current_price pr

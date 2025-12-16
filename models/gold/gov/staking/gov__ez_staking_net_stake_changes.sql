@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -50,6 +50,7 @@ combined AS (
 SELECT
     c.validator_id,
     v.validator_name,
+    v.consensus_address,
     c.change_date,
     c.delegations,
     c.delegations_raw,

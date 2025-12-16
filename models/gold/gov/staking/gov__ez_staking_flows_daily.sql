@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -75,6 +75,7 @@ SELECT
     f.flow_date,
     f.validator_id,
     v.validator_name,
+    v.consensus_address,
     f.delegator_address,
     f.flow_type,
     f.amount,

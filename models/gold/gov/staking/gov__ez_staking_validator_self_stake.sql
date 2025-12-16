@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['gold', 'gov', 'staking', 'curated_daily']
+    tags = ['gov', 'curated_daily']
 ) }}
 
 /*
@@ -61,6 +61,8 @@ self_stake AS (
 SELECT
     vt.balance_date,
     vt.validator_id,
+    v.validator_name,
+    v.consensus_address,
     va.auth_address AS validator_address,
     COALESCE(ss.self_active_stake, 0) AS self_active_stake,
     vt.total_active_stake,
@@ -83,6 +85,9 @@ FROM
 INNER JOIN
     validator_auth_addresses va
     ON vt.validator_id = va.validator_id
+LEFT JOIN
+    {{ ref('gov__dim_staking_validators') }} v
+    ON vt.validator_id = v.validator_id
 LEFT JOIN
     self_stake ss
     ON vt.balance_date = ss.balance_date
