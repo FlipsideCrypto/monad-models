@@ -1,0 +1,251 @@
+version: 2
+
+models:
+  - name: silver__staking_events
+    description: >
+      Silver layer view containing all staking events from the Monad staking precompile contract.
+      Filters core__ez_decoded_event_logs to the staking contract address.
+      This model serves as the base for all gold staking models.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the staking event occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the block containing the staking event
+
+      - name: TX_HASH
+        description: Transaction hash containing the staking event
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Address of the staking precompile contract (0x0000000000000000000000000000000000000800)
+
+      - name: EVENT_NAME
+        description: >
+          Name of the staking event. One of: ValidatorRewarded, ValidatorCreated,
+          ValidatorStatusChanged, Delegate, Undelegate, Withdraw, ClaimRewards,
+          CommissionChanged, EpochChanged
+
+      - name: DECODED_LOG
+        description: Flattened decoded event data containing event-specific parameters
+
+      - name: FULL_DECODED_LOG
+        description: Complete decoded event log with full structure
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature of the originating transaction
+
+      - name: TX_SUCCEEDED
+        description: Whether the transaction succeeded
+
+      - name: STAKING_EVENTS_ID
+        description: Unique identifier for this staking event record
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: silver__snapshot_validator_set
+    description: >
+      Snapshot validator set for each epoch, fetched via LiveQuery from the staking precompile.
+      The snapshot validator set determines which validators are eligible for producing blocks
+      in that epoch. Uses getSnapshotValidatorSet(uint32 startIndex) to paginate through all validators.
+      Queries at epoch_start_block from gov__dim_epochs.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number for this snapshot
+
+      - name: EPOCH_START_BLOCK
+        description: Block number where the epoch started (from gov__dim_epochs)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator in the snapshot set
+
+      - name: VALIDATOR_POSITION
+        description: Position/rank of the validator in the snapshot set
+
+      - name: SNAPSHOT_VALIDATOR_SET_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: silver__snapshot_get_validator
+    description: >
+      Daily snapshot of validator state via LiveQuery.
+      Calls getValidator(uint256 validatorId) at the last block of each day.
+      Limited to last 16 days, one day per run. Response is parsed into columns.
+
+    columns:
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot (end of day)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: SNAPSHOT_BLOCK
+        description: Last block number of the snapshot date
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority address
+
+      - name: FLAGS
+        description: Validator status flags (ValidatorFlagsOk = active, ValidatorFlagsStakeTooLow = below threshold)
+
+      - name: EXECUTION_STAKE_RAW
+        description: Raw execution stake in wei
+
+      - name: EXECUTION_STAKE
+        description: Execution stake in MON (decimal adjusted)
+
+      - name: ACCUMULATED_REWARDS_PER_TOKEN_RAW
+        description: Validator's accumulator value used for reward calculations
+
+      - name: EXECUTION_COMMISSION_BPS
+        description: Execution commission rate * 1e18
+
+      - name: EXECUTION_COMMISSION_PCT
+        description: Execution commission as percentage (0-100)
+
+      - name: UNCLAIMED_REWARDS_RAW
+        description: Raw unclaimed rewards (delegator pool) in wei
+
+      - name: UNCLAIMED_REWARDS
+        description: Unclaimed rewards (delegator pool) in MON
+
+      - name: CONSENSUS_STAKE_RAW
+        description: Raw consensus stake in wei
+
+      - name: CONSENSUS_STAKE
+        description: Consensus stake in MON (active for current epoch)
+
+      - name: CONSENSUS_COMMISSION_BPS
+        description: Consensus commission rate * 1e18
+
+      - name: CONSENSUS_COMMISSION_PCT
+        description: Consensus commission as percentage
+
+      - name: SNAPSHOT_STAKE_RAW
+        description: Raw snapshot stake in wei
+
+      - name: SNAPSHOT_STAKE
+        description: Snapshot stake in MON (previous epoch)
+
+      - name: SNAPSHOT_COMMISSION_BPS
+        description: Snapshot commission rate * 1e18
+
+      - name: SNAPSHOT_COMMISSION_PCT
+        description: Snapshot commission as percentage
+
+      - name: SECP_PUBKEY
+        description: Secp256k1 public key used for consensus (hex encoded bytes)
+
+      - name: BLS_PUBKEY
+        description: BLS public key used for consensus (hex encoded bytes)
+
+      - name: RAW_RESPONSE
+        description: Raw JSON response from the LiveQuery API call
+
+      - name: SNAPSHOT_GET_VALIDATOR_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: silver__snapshot_get_delegator
+    description: >
+      Daily snapshot of validator self-delegation state via LiveQuery.
+      Calls getDelegator(uint64 validatorId, address delegator) at the last block of each day,
+      using the validator's auth_address as the delegator. This captures the validator's
+      own delegation (self-stake) and their unclaimed delegator rewards.
+      Limited to last 16 days, one day per run. Raw response stored for parsing downstream.
+
+    columns:
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot (end of day)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority address used as delegator parameter
+
+      - name: SNAPSHOT_BLOCK
+        description: Last block number of the snapshot date
+
+      - name: RESPONSE
+        description: >
+          Raw JSON response from the LiveQuery API call. Contains getDelegator return values:
+          stake, accRewardPerToken, unclaimedRewards, deltaStake, nextDeltaStake, deltaEpoch, nextDeltaEpoch
+
+      - name: SNAPSHOT_GET_DELEGATOR_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: silver__validator_addresses
+    description: >
+      Maps validator_id to consensus_address (validator address derived from secp_pubkey).
+      The consensus_address is extracted from syscallReward trace input - when a validator
+      produces a block, the last 20 bytes of the trace input contain the validator's
+      consensus address (derived from keccak256 of the uncompressed secp pubkey).
+
+    columns:
+      - name: VALIDATOR_ID
+        description: Unique sequential numeric identifier for the validator
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority address for withdrawals and receiving commission
+
+      - name: CONSENSUS_ADDRESS
+        description: >
+          Ethereum address derived from secp_pubkey via keccak256 hash (last 20 bytes).
+          This is the address that appears as "miner" in block headers when this validator
+          produces a block. Used by syscallReward to identify block producers.
+          NULL if validator hasn't produced blocks yet.
+
+      - name: VALIDATOR_CREATED_AT
+        description: Timestamp when the validator was created
+
+      - name: VALIDATOR_ADDRESSES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified

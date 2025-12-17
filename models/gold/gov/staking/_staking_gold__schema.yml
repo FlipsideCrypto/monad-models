@@ -1,0 +1,1684 @@
+version: 2
+
+models:
+  - name: gov__fact_validators_created
+    description: >
+      ValidatorCreated events from the Monad staking precompile (0x0000000000000000000000000000000000001000).
+      Emitted when a new validator is added via addValidator(). The validator must provide unique BLS and SECP keys,
+      and stake at least MIN_AUTH_ADDRESS_STAKE. If stake >= ACTIVE_VALIDATOR_STAKE, the validator becomes active
+      in epoch n+1 (or n+2 if called during epoch delay rounds). Validator IDs are permanent and sequential.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the validator was created
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp when the validator was created
+        tests:
+          - not_null
+
+      - name: TX_HASH
+        description: Transaction hash of the validator creation
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (ValidatorCreated)
+
+      - name: VALIDATOR_ID
+        description: Unique sequential numeric identifier assigned to the validator. Permanent - IDs are never reused even if validator becomes inactive.
+        tests:
+          - unique
+          - not_null
+
+      - name: AUTH_ADDRESS
+        description: >
+          Authority address for the validator's delegator account. Has withdrawal authority for the validator's
+          staked amount. Multiple validators may share the same auth_address. Commission rewards are deposited
+          to this address's delegator struct.
+        tests:
+          - not_null
+
+      - name: COMMISSION
+        description: Initial commission rate multiplied by 1e18 (e.g., 10% = 1e17). Maximum is MAX_COMMISSION (100%).
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (addValidator)
+
+      - name: FACT_VALIDATORS_CREATED_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_delegations
+    description: >
+      Delegate events from the Monad staking precompile. Emitted when delegate() is called to increase
+      stake to a validator. Also emitted during addValidator() and compound() which implicitly delegate.
+      Creates a delegator account if it doesn't exist. Stake becomes active in epoch n+1 (or n+2 if
+      called during epoch delay rounds). If delegation causes validator stake >= ACTIVE_VALIDATOR_STAKE,
+      validator is added to execution_valset.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the delegation occurred
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the delegation
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+
+      - name: TX_HASH
+        description: Transaction hash of the delegation
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (Delegate)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator receiving the delegation. Must correspond to a valid validator.
+        tests:
+          - not_null
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator (msg.sender of the delegate call)
+        tests:
+          - not_null
+
+      - name: AMOUNT_RAW
+        description: Raw delegation amount in wei (msg.value of the transaction)
+        tests:
+          - not_null
+
+      - name: AMOUNT
+        description: Delegation amount in MON (adjusted for 18 decimals)
+        tests:
+          - not_null
+
+      - name: ACTIVATION_EPOCH
+        description: >
+          Epoch when the delegation stake becomes active and starts earning rewards.
+          Will be current_epoch + 1 if called before boundary block, or current_epoch + 2 if called during epoch delay rounds.
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (delegate)
+
+      - name: FACT_DELEGATIONS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_undelegations
+    description: >
+      Undelegate events from the Monad staking precompile. Emitted when undelegate() is called to begin
+      withdrawing stake. Moves amount from delegator's active stake to a withdrawal request object.
+      Stake becomes inactive in epoch n+1 (or n+2 during delay rounds), then withdrawable after
+      WITHDRAWAL_DELAY epochs. Only active stake can be undelegated - pending delegations must activate first.
+      If undelegation causes validator stake < ACTIVE_VALIDATOR_STAKE, validator scheduled for removal.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the undelegation was initiated
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the undelegation
+
+      - name: TX_HASH
+        description: Transaction hash of the undelegation
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (Undelegate)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from which stake is being withdrawn. Must be a validator the delegator previously delegated to.
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator initiating undelegation (msg.sender)
+
+      - name: WITHDRAW_ID
+        description: >
+          Identifier for this withdrawal request (0-255). Each (validator, delegator) pair can have up to 256
+          in-flight withdrawal requests. IDs can be reused after calling withdraw(). Reverts if ID already has pending withdrawal.
+
+      - name: AMOUNT_RAW
+        description: Raw undelegation amount in wei. Must be <= delegator's active stake.
+
+      - name: AMOUNT
+        description: Undelegation amount in MON (adjusted for 18 decimals)
+
+      - name: ACTIVATION_EPOCH
+        description: >
+          Epoch when the stake becomes inactive (stops earning rewards). Withdrawable after WITHDRAWAL_DELAY (1 epoch) additional epochs.
+          So if activation_epoch is N, can withdraw in epoch N + WITHDRAWAL_DELAY.
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (undelegate)
+
+      - name: FACT_UNDELEGATIONS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_withdrawals
+    description: >
+      Withdraw events from the Monad staking precompile. Emitted when withdraw() is called to complete
+      an undelegation and receive funds. Can only be called after WITHDRAWAL_DELAY epochs have passed
+      since the undelegate. Sends the undelegated amount plus any rewards earned during the withdrawal
+      period to msg.sender. Clears the withdrawal request, freeing the withdraw_id for reuse.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the withdrawal was completed
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the withdrawal
+
+      - name: TX_HASH
+        description: Transaction hash of the withdrawal
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (Withdraw)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from which stake was withdrawn
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator receiving the withdrawal (msg.sender). Funds transferred to this address.
+
+      - name: WITHDRAW_ID
+        description: Identifier of the withdrawal request being completed. This ID is now freed for reuse in future undelegations.
+
+      - name: AMOUNT_RAW
+        description: Raw withdrawal amount in wei. Includes original undelegated amount plus any rewards earned during withdrawal delay.
+
+      - name: AMOUNT
+        description: Withdrawal amount in MON (adjusted for 18 decimals)
+
+      - name: WITHDRAW_EPOCH
+        description: Epoch when the withdrawal was completed and funds transferred
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (withdraw)
+
+      - name: FACT_WITHDRAWALS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_validator_rewards
+    description: >
+      ValidatorRewarded events emitted by syscallReward for every block. When a validator produces a block,
+      the REWARD constant is split: commission% goes to the validator's auth_address delegator rewards,
+      and the remainder (this amount) is added to unclaimed_rewards pool for all delegators. The amount
+      here represents the DELEGATOR portion after commission - to get validator earnings, use
+      fact_validator_earnings which tracks via getDelegator snapshots.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the reward was allocated (the block this validator produced)
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the reward allocation
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+
+      - name: TX_HASH
+        description: Transaction hash of the syscallReward system transaction
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (ValidatorRewarded)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator who produced the block and whose delegators receive this reward
+        tests:
+          - not_null
+
+      - name: REWARD_SOURCE
+        description: Source address of the block reward (syscallReward origin - system address)
+
+      - name: AMOUNT_RAW
+        description: Raw reward amount in wei. This is REWARD - commission, the portion distributed to delegators.
+        tests:
+          - not_null
+
+      - name: AMOUNT
+        description: >
+          Reward amount in MON (adjusted for 18 decimals). This is the delegator pool portion AFTER commission
+          is deducted. Formula: REWARD * (1 - commission_rate). Does NOT include validator commission.
+        tests:
+          - not_null
+
+      - name: EPOCH
+        description: Epoch in which the reward was earned
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (syscallReward)
+
+      - name: FACT_VALIDATOR_REWARDS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_rewards_claimed
+    description: >
+      ClaimRewards events emitted when claimRewards() is called to withdraw accumulated rewards.
+      Claims from the delegator struct's rewards field, which includes BOTH proportional staking rewards
+      AND commission (for auth_address). For validators, the amount includes their commission earnings
+      plus rewards earned on their self-stake. Transfers claimed amount to msg.sender and resets
+      delegator.rewards to 0.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the claim occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the claim
+
+      - name: TX_HASH
+        description: Transaction hash of the claim
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (ClaimRewards)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from which rewards are being claimed. The delegator must have a delegation to this validator.
+
+      - name: DELEGATOR_ADDRESS
+        description: >
+          Address claiming rewards (msg.sender). If this equals the validator's auth_address, the amount
+          includes BOTH commission AND self-stake rewards. For regular delegators, only staking rewards.
+
+      - name: AMOUNT_RAW
+        description: Raw claimed amount in wei. For auth_address, includes commission + self-stake rewards.
+
+      - name: AMOUNT
+        description: Claimed amount in MON (adjusted for 18 decimals)
+
+      - name: EPOCH
+        description: Current epoch at time of claim
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (claimRewards)
+
+      - name: FACT_REWARDS_CLAIMED_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_validator_commission_changes
+    description: >
+      CommissionChanged events emitted when changeCommission() is called by a validator's auth_address.
+      Only the auth_address can change commission for a validator. Commission cannot exceed MAX_COMMISSION (100%).
+      Change takes effect in epoch n+1 (or n+2 during epoch delay rounds). Commission is the percentage of
+      block rewards taken before distributing to delegators.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the commission change occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the commission change
+
+      - name: TX_HASH
+        description: Transaction hash of the commission change
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (CommissionChanged)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator changing commission. msg.sender must be this validator's auth_address.
+
+      - name: OLD_COMMISSION
+        description: Previous commission rate (multiplied by 1e18, e.g., 10% = 1e17)
+
+      - name: NEW_COMMISSION
+        description: New commission rate (multiplied by 1e18). Takes effect in next epoch (or epoch+2 during delay rounds).
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (changeCommission)
+
+      - name: FACT_VALIDATOR_COMMISSION_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_validator_status_changes
+    description: >
+      ValidatorStatusChanged events emitted when a validator's flags change during addValidator(),
+      delegate(), undelegate(), or compound(). Flags indicate validator eligibility status:
+      ValidatorFlagsOk (stake >= ACTIVE_VALIDATOR_STAKE), ValidatorFlagsStakeTooLow
+      (stake < ACTIVE_VALIDATOR_STAKE but >= MIN_AUTH_ADDRESS_STAKE), or other status conditions.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the status change occurred
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the status change
+
+      - name: TX_HASH
+        description: Transaction hash of the status change
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (ValidatorStatusChanged)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator whose status changed
+
+      - name: FLAGS
+        description: >
+          New status flags bitmap for the validator. Indicates eligibility for consensus set.
+          ValidatorFlagsOk = active, ValidatorFlagsStakeTooLow = insufficient stake,
+          INSUFFICIENT_VALIDATOR_STAKE = auth_address stake below MIN_AUTH_ADDRESS_STAKE.
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature
+
+      - name: FACT_VALIDATOR_STATUS_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_epoch_changes
+    description: >
+      EpochChanged events emitted by syscallOnEpochChange at the end of epoch delay rounds.
+      Marks the transition between epochs. At this point: pending stake changes from previous epoch
+      become active, accumulator values are saved for validators with stake changes, and inactive
+      validators are removed from consensus set. Epochs are variable length (~5.5 hours) based on
+      consensus rounds, not fixed block counts.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number where the epoch change occurred (first block of new epoch)
+
+      - name: BLOCK_TIMESTAMP
+        description: Timestamp of the epoch change
+
+      - name: TX_HASH
+        description: Transaction hash of the syscallOnEpochChange system transaction
+
+      - name: EVENT_INDEX
+        description: Index of the event within the transaction
+
+      - name: CONTRACT_ADDRESS
+        description: Staking precompile contract address (0x0000000000000000000000000000000000001000)
+
+      - name: EVENT_NAME
+        description: Event name (EpochChanged)
+
+      - name: OLD_EPOCH
+        description: Previous epoch number (just ended)
+
+      - name: NEW_EPOCH
+        description: New epoch number (now active). Pending delegations from old_epoch now active.
+
+      - name: ORIGIN_FROM_ADDRESS
+        description: Address that initiated the transaction
+
+      - name: ORIGIN_TO_ADDRESS
+        description: Target address of the transaction
+
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: Function signature (syscallOnEpochChange)
+
+      - name: FACT_EPOCH_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__ez_validator_totals_daily
+    description: >
+      Daily staking totals rolled up to the validator level. Aggregates all delegator balances
+      per validator per day. Includes total active stake, pending withdrawals, delegator counts,
+      and USD valuations.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: TOTAL_ACTIVE_STAKE
+        description: Sum of all delegators' active stake for this validator in MON
+
+      - name: TOTAL_ACTIVE_STAKE_USD
+        description: Total active stake value in USD
+
+      - name: TOTAL_PENDING_WITHDRAWAL
+        description: Sum of all pending withdrawals across delegators in MON
+
+      - name: TOTAL_PENDING_WITHDRAWAL_USD
+        description: Total pending withdrawal value in USD
+
+      - name: TOTAL_STAKE_AT_RISK
+        description: Active + pending stake (both subject to slashing until withdrawn) in MON
+
+      - name: TOTAL_STAKE_AT_RISK_USD
+        description: Total stake at risk value in USD
+
+      - name: DAILY_ACTIVE_CHANGE
+        description: Net change in total active stake for this day
+
+      - name: DAILY_PENDING_CHANGE
+        description: Net change in total pending withdrawal balance for this day
+
+      - name: DELEGATOR_COUNT
+        description: Total number of unique delegators who have interacted with this validator
+
+      - name: ACTIVE_DELEGATOR_COUNT
+        description: Number of delegators with active stake > 0
+
+      - name: MON_PRICE_USD
+        description: End of day MON price in USD used for valuations
+
+      - name: EZ_VALIDATOR_TOTALS_DAILY_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_staking_balances_daily
+    description: >
+      End of day staking balances for each validator-delegator pair.
+      Tracks three balance states: active (delegated), pending withdrawal (undelegated but not withdrawn),
+      and total at risk (both active and pending are subject to slashing until withdrawn).
+      Flow: Delegate increases active -> Undelegate moves active to pending -> Withdraw removes pending.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot (end of day)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator
+
+      - name: ACTIVE_BALANCE
+        description: Currently delegated stake in MON (earning rewards, increased by Delegate, decreased by Undelegate)
+
+      - name: PENDING_WITHDRAWAL_BALANCE
+        description: Undelegated but not yet withdrawn stake in MON (no longer earning rewards, increased by Undelegate, decreased by Withdraw)
+
+      - name: TOTAL_BALANCE_AT_RISK
+        description: Sum of active and pending balances - total stake subject to potential slashing
+
+      - name: DAILY_ACTIVE_CHANGE
+        description: Net change in active balance for this day
+
+      - name: DAILY_PENDING_CHANGE
+        description: Net change in pending withdrawal balance for this day
+
+      - name: EZ_STAKING_BALANCES_DAILY_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__ez_validator_self_stake
+    description: >
+      Daily view showing the percentage of each validator's total stake that is self-staked
+      (where validator auth_address equals delegator_address). Useful for analyzing validator
+      skin-in-the-game and alignment with delegators.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: VALIDATOR_ADDRESS
+        description: Auth address of the validator
+
+      - name: SELF_ACTIVE_STAKE
+        description: Validator's own active stake in MON
+
+      - name: TOTAL_ACTIVE_STAKE
+        description: Total active stake delegated to this validator from all delegators
+
+      - name: SELF_PENDING_STAKE
+        description: Validator's own pending withdrawal stake in MON
+
+      - name: TOTAL_PENDING_STAKE
+        description: Total pending withdrawal stake for this validator from all delegators
+
+      - name: SELF_STAKE_AT_RISK
+        description: Validator's own total stake at risk (active + pending)
+
+      - name: TOTAL_STAKE_AT_RISK
+        description: Total stake at risk for this validator from all delegators
+
+      - name: SELF_STAKE_PCT_OF_ACTIVE
+        description: Percentage of active stake that is self-staked by the validator
+
+      - name: SELF_STAKE_PCT_OF_TOTAL
+        description: Percentage of total stake at risk that is self-staked by the validator
+
+  - name: gov__dim_epochs
+    description: >
+      Dimension table for staking epochs. Each epoch starts when the EpochChanged event fires.
+      Block ranges are derived from consecutive epoch change events. Epochs are variable length
+      (~5.5 hours) based on consensus rounds, not fixed block counts.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: EPOCH_START_BLOCK
+        description: First block of this epoch (block where EpochChanged event fired)
+
+      - name: EPOCH_END_BLOCK
+        description: Last block of this epoch (block before next epoch started, or current max block for latest epoch)
+
+      - name: EPOCH_BLOCK_COUNT
+        description: Number of blocks in this epoch
+
+      - name: EPOCH_START_TIMESTAMP
+        description: Timestamp when this epoch started
+
+      - name: EPOCH_END_TIMESTAMP
+        description: Timestamp when this epoch ended (NULL for current epoch)
+
+      - name: EPOCH_DURATION_SECONDS
+        description: Duration of epoch in seconds (NULL for current epoch)
+
+      - name: EPOCH_CHANGE_TX_HASH
+        description: Transaction hash of the EpochChanged event that started this epoch
+
+  - name: gov__ez_block_production
+    description: >
+      Block production metrics per validator per epoch. Tracks how many blocks each validator
+      produced along with gas and transaction metrics. Block producer is identified from
+      ValidatorRewarded events where the first event per block indicates the block producer.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: VALIDATOR_ID
+        description: ID of the validator who produced blocks
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey
+
+      - name: AUTH_ADDRESS
+        description: The validator's administrative/withdrawal address
+
+      - name: BLOCKS_PRODUCED
+        description: Number of blocks produced by this validator in this epoch
+
+      - name: TOTAL_BLOCK_REWARDS
+        description: Total block rewards earned by this validator in this epoch (in MON)
+
+      - name: TOTAL_BLOCK_REWARDS_RAW
+        description: Total block rewards in wei
+
+      - name: AVG_REWARD_PER_BLOCK
+        description: Average reward per block produced (in MON)
+
+      - name: FIRST_BLOCK_PRODUCED
+        description: First block number produced by this validator in this epoch
+
+      - name: LAST_BLOCK_PRODUCED
+        description: Last block number produced by this validator in this epoch
+
+      - name: FIRST_BLOCK_TIMESTAMP
+        description: Timestamp of first block produced
+
+      - name: LAST_BLOCK_TIMESTAMP
+        description: Timestamp of last block produced
+
+      - name: EZ_BLOCK_PRODUCTION_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_validator_balances_daily
+    description: >
+      Daily wallet balances for validator addresses (auth_address from ValidatorCreated events).
+      Forward fills missing days from ez_balances_native_daily since that table only has rows
+      for days when the balance changed. Includes USD valuation using end of day native price.
+
+    columns:
+      - name: BALANCE_DATE
+        description: Date of the balance snapshot
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: VALIDATOR_ADDRESS
+        description: Wallet address of the validator (auth_address)
+
+      - name: BALANCE
+        description: Native MON balance (decimal adjusted)
+
+      - name: BALANCE_RAW
+        description: Raw balance in wei
+
+      - name: MON_PRICE_USD
+        description: End of day MON price in USD
+
+      - name: BALANCE_USD
+        description: Balance value in USD
+
+      - name: IS_FORWARD_FILLED
+        description: Whether this row was forward filled from a previous day (no balance change on this day)
+
+      - name: EZ_VALIDATOR_BALANCES_DAILY_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__ez_validator_epoch_performance
+    description: >
+      Validator performance per epoch comparing expected vs actual block production.
+      Shows all validators in the snapshot set with their actual blocks produced,
+      production rank within epoch, and percentage of total blocks mined.
+      Left joins snapshot validators to block production so validators who produced
+      zero blocks are still included.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: VALIDATOR_ID
+        description: ID of the validator from the snapshot set
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: VALIDATOR_POSITION
+        description: Position of validator in the snapshot set
+
+      - name: VALIDATOR_ADDRESS
+        description: Auth address of the validator
+
+      - name: VALIDATORS_IN_SNAPSHOT
+        description: Total number of validators in the snapshot set for this epoch
+
+      - name: TOTAL_EPOCH_BLOCKS
+        description: Total blocks in this epoch
+
+      - name: EXPECTED_BLOCKS_PER_VALIDATOR
+        description: Expected blocks per validator assuming equal distribution (total_epoch_blocks / validators_in_snapshot)
+
+      - name: ACTUAL_BLOCKS_PRODUCED
+        description: Actual number of blocks produced by this validator in this epoch
+
+      - name: BLOCKS_VS_EXPECTED
+        description: Difference between actual and expected blocks (positive = overperformed, negative = underperformed)
+
+      - name: PCT_OF_EPOCH_BLOCKS
+        description: Percentage of total epoch blocks produced by this validator
+
+      - name: PRODUCTION_RANK
+        description: Rank of validator by blocks produced within this epoch (1 = most blocks)
+
+      - name: TOTAL_BLOCK_REWARDS
+        description: Total block rewards earned by this validator in this epoch (in MON)
+
+      - name: AVG_REWARD_PER_BLOCK
+        description: Average reward per block produced (in MON)
+
+      - name: EPOCH_START_TIMESTAMP
+        description: Timestamp when the epoch started
+
+      - name: EPOCH_END_TIMESTAMP
+        description: Timestamp when the epoch ended
+
+      - name: EZ_VALIDATOR_EPOCH_PERFORMANCE_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__fact_validator_snapshots
+    description: >
+      Parsed daily validator snapshots from getValidator() LiveQuery calls. Returns ValExecution struct
+      (realtime execution state), plus consensus and snapshot stake/commission. Note: unclaimed_rewards
+      here is the DELEGATOR REWARD POOL (total undistributed rewards for all delegators), NOT the
+      validator's personal earnings. For validator earnings, use fact_validator_earnings which
+      uses getDelegator snapshots.
+
+    columns:
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot (end of day UTC)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: SNAPSHOT_BLOCK
+        description: Last block number of the snapshot date
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority address. Has withdrawal authority and receives commission.
+
+      - name: FLAGS
+        description: >
+          Validator status flags (address_flags from ValExecution). ValidatorFlagsOk = active eligible,
+          ValidatorFlagsStakeTooLow = below ACTIVE_VALIDATOR_STAKE threshold.
+
+      - name: EXECUTION_STAKE_RAW
+        description: Raw execution stake in wei. Realtime total stake pool (reflects immediately).
+
+      - name: EXECUTION_STAKE
+        description: Execution stake in MON. Total delegated stake including pending. Changes reflect immediately.
+
+      - name: EXECUTION_STAKE_USD
+        description: Execution stake value in USD
+
+      - name: ACCUMULATED_REWARDS_PER_TOKEN_RAW
+        description: >
+          Validator's accumulator value (acc from ValExecution). Used to calculate delegator rewards.
+          Formula: delegator_rewards = stake * (current_acc - delegator_acc). Multiplied by ACCUMULATOR_DENOMINATOR (1e36).
+
+      - name: EXECUTION_COMMISSION_BPS
+        description: Execution commission rate * 1e18 (e.g., 10% = 1e17). Changes reflect immediately.
+
+      - name: EXECUTION_COMMISSION_PCT
+        description: Execution commission as percentage (0-100)
+
+      - name: UNCLAIMED_REWARDS_RAW
+        description: >
+          Raw unclaimed_rewards from ValExecution in wei. IMPORTANT: This is the DELEGATOR REWARD POOL
+          (total undistributed rewards for ALL delegators), NOT the validator's personal earnings.
+          Increased by syscallReward, decreased as delegators claim.
+
+      - name: UNCLAIMED_REWARDS
+        description: >
+          Delegator reward pool in MON. This is NOT validator earnings - it's the pool from which all
+          delegators claim. For validator earnings, use fact_validator_earnings.
+
+      - name: UNCLAIMED_REWARDS_USD
+        description: Delegator reward pool value in USD
+
+      - name: CONSENSUS_STAKE_RAW
+        description: Raw consensus stake in wei. Stake used for current epoch's consensus/rewards (val_consensus).
+
+      - name: CONSENSUS_STAKE
+        description: Consensus stake in MON. Active stake for block production and reward calculations this epoch.
+
+      - name: CONSENSUS_STAKE_USD
+        description: Consensus stake value in USD
+
+      - name: CONSENSUS_COMMISSION_BPS
+        description: Consensus commission rate * 1e18. Active commission for reward calculations this epoch.
+
+      - name: CONSENSUS_COMMISSION_PCT
+        description: Consensus commission as percentage
+
+      - name: SNAPSHOT_STAKE_RAW
+        description: Raw snapshot stake in wei. Previous epoch's consensus stake (val_snapshot).
+
+      - name: SNAPSHOT_STAKE
+        description: Snapshot stake in MON. Used during epoch delay rounds for rewards.
+
+      - name: SNAPSHOT_STAKE_USD
+        description: Snapshot stake value in USD
+
+      - name: SNAPSHOT_COMMISSION_BPS
+        description: Snapshot commission rate * 1e18. Previous epoch's active commission.
+
+      - name: SNAPSHOT_COMMISSION_PCT
+        description: Snapshot commission as percentage
+
+      - name: SECP_PUBKEY
+        description: Secp256k1 public key used for consensus (hex encoded bytes)
+
+      - name: BLS_PUBKEY
+        description: BLS public key used for consensus (hex encoded bytes)
+
+      - name: MON_PRICE_USD
+        description: End of day MON price in USD used for valuations
+
+      - name: FACT_VALIDATOR_SNAPSHOTS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__ez_validator_earnings
+    description: >
+      Daily validator total earnings calculated as claimed rewards plus the change
+      in unclaimed balance from the prior day. Uses getDelegator snapshot which captures
+      the validator's TOTAL earnings including both commission (from delegators) AND
+      proportional rewards earned on the validator's self-stake. The claimRewards function
+      claims from the delegator struct which accumulates both reward types.
+
+    columns:
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: EARNING_DATE
+        description: Date of the earnings (from snapshot)
+
+      - name: SELF_STAKE
+        description: Validator's self-stake amount in MON (for context)
+
+      - name: CLAIMED_REWARDS
+        description: Amount of rewards claimed on this date in MON (by auth_address from their own validator)
+
+      - name: CLAIMED_REWARDS_RAW
+        description: Amount of rewards claimed on this date in wei
+
+      - name: CLAIM_COUNT
+        description: Number of claim transactions on this date
+
+      - name: UNCLAIMED_CHANGE
+        description: Change in unclaimed balance from prior day (can be negative if claimed more than earned)
+
+      - name: TOTAL_EARNED
+        description: Total earnings this day (claimed + unclaimed change) in MON - includes commission AND self-stake rewards
+
+      - name: UNCLAIMED_BALANCE
+        description: Current unclaimed rewards balance in MON (commission + self-stake rewards)
+
+      - name: UNCLAIMED_BALANCE_USD
+        description: Current unclaimed rewards balance in USD
+
+      - name: MON_PRICE_USD
+        description: MON price at snapshot used for USD calculations
+
+      - name: TOTAL_EARNED_USD
+        description: Total earnings this day in USD
+
+      - name: PREV_SNAPSHOT_DATE
+        description: Date of the prior snapshot used for unclaimed change calculation
+
+      - name: EZ_VALIDATOR_EARNINGS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__fact_validator_self_delegation_snapshots
+    description: >
+      Parsed daily validator self-delegation snapshots from getDelegator(validatorId, auth_address) LiveQuery calls.
+      Returns the DelInfo struct for the validator's own delegation. This captures the validator's TOTAL earnings
+      because commission is deposited into auth_address's delegator.rewards by syscallReward. So unclaimed_rewards
+      here = commission + proportional self-stake rewards. This is the source of truth for validator earnings.
+
+    columns:
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot (end of day UTC)
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority address - used as the delegator parameter in getDelegator call
+
+      - name: SNAPSHOT_BLOCK
+        description: Last block number of the snapshot date
+
+      - name: STAKE_RAW
+        description: Raw self-stake amount in wei (DelInfo.stake - current active stake)
+
+      - name: STAKE
+        description: Current active self-stake in MON. Validator's own delegation that is earning rewards.
+
+      - name: STAKE_USD
+        description: Self-stake value in USD
+
+      - name: ACC_REWARD_PER_TOKEN_RAW
+        description: >
+          Delegator's last checked accumulator value (DelInfo.acc). Used to calculate unclaimed rewards.
+          Updated when delegator interacts with the contract.
+
+      - name: UNCLAIMED_REWARDS_RAW
+        description: >
+          Raw unclaimed rewards in wei (DelInfo.rewards). For auth_address, this includes BOTH commission
+          (deposited by syscallReward) AND proportional rewards earned on self-stake. This is the validator's
+          total pending earnings.
+
+      - name: UNCLAIMED_REWARDS
+        description: >
+          Validator's total unclaimed earnings in MON. Includes commission + self-stake rewards.
+          This is what gets transferred when the validator calls claimRewards().
+
+      - name: UNCLAIMED_REWARDS_USD
+        description: Validator's total unclaimed earnings value in USD
+
+      - name: DELTA_STAKE_RAW
+        description: Raw stake to be activated next epoch in wei (DelInfo.delta_stake)
+
+      - name: DELTA_STAKE
+        description: Pending stake to be activated in delta_epoch in MON. Set when delegating during non-delay period.
+
+      - name: NEXT_DELTA_STAKE_RAW
+        description: Raw stake to be activated in 2 epochs in wei (DelInfo.next_delta_stake)
+
+      - name: NEXT_DELTA_STAKE
+        description: Pending stake to be activated in next_delta_epoch in MON. Set when delegating during delay period.
+
+      - name: DELTA_EPOCH
+        description: Epoch when delta_stake becomes active and starts earning rewards (0 if no pending stake)
+
+      - name: NEXT_DELTA_EPOCH
+        description: Epoch when next_delta_stake becomes active (0 if no pending stake)
+
+      - name: TOTAL_PENDING_STAKE
+        description: Sum of delta_stake and next_delta_stake in MON. Total stake awaiting activation.
+
+      - name: MON_PRICE_USD
+        description: End of day MON price in USD used for valuations
+
+      - name: FACT_VALIDATOR_SELF_DELEGATION_SNAPSHOTS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
+  - name: gov__ez_validator_apr
+    description: >
+      Daily and rolling APR/APY calculations per validator. APR = (daily_earnings / stake) * 365.
+      Includes 7-day and 30-day rolling averages for smoothed metrics.
+
+    columns:
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: EARNING_DATE
+        description: Date of the APR calculation
+
+      - name: TOTAL_EARNED
+        description: Total earnings for the day in MON
+
+      - name: TOTAL_EARNED_USD
+        description: Total earnings for the day in USD
+
+      - name: EXECUTION_STAKE
+        description: Validator's execution stake used as denominator
+
+      - name: EXECUTION_STAKE_USD
+        description: Execution stake value in USD
+
+      - name: MON_PRICE_USD
+        description: MON price used for calculations
+
+      - name: DAILY_RETURN_RATE
+        description: Daily return rate (total_earned / execution_stake)
+
+      - name: APR_PCT
+        description: Annualized percentage rate (daily_return * 365 * 100)
+
+      - name: APY_PCT
+        description: Annualized percentage yield with daily compounding
+
+      - name: APR_7D_ROLLING_PCT
+        description: 7-day rolling average APR
+
+      - name: APR_30D_ROLLING_PCT
+        description: 30-day rolling average APR
+
+      - name: EZ_VALIDATOR_APR_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_staking_flows_daily
+    description: >
+      Daily staking flows aggregated by validator, delegator, and flow type.
+      Combines delegations, undelegations, withdrawals, and claims into unified view.
+
+    columns:
+      - name: FLOW_DATE
+        description: Date of the flow
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: DELEGATOR_ADDRESS
+        description: Address of the delegator
+
+      - name: FLOW_TYPE
+        description: Type of flow (delegation, undelegation, withdrawal, claim)
+
+      - name: AMOUNT
+        description: Flow amount in MON
+
+      - name: AMOUNT_RAW
+        description: Flow amount in wei
+
+      - name: TX_COUNT
+        description: Number of transactions for this flow type on this day
+
+      - name: EZ_STAKING_FLOWS_DAILY_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_net_stake_changes
+    description: >
+      Daily net stake changes per validator. Calculates delegations minus undelegations
+      to show net flow direction and cumulative changes over time.
+
+    columns:
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: CHANGE_DATE
+        description: Date of the stake change
+
+      - name: DELEGATIONS
+        description: Total delegations on this day in MON
+
+      - name: DELEGATIONS_RAW
+        description: Total delegations in wei
+
+      - name: DELEGATION_COUNT
+        description: Number of delegation transactions
+
+      - name: UNDELEGATIONS
+        description: Total undelegations on this day in MON
+
+      - name: UNDELEGATIONS_RAW
+        description: Total undelegations in wei
+
+      - name: UNDELEGATION_COUNT
+        description: Number of undelegation transactions
+
+      - name: NET_STAKE_CHANGE
+        description: Net change (delegations - undelegations) in MON
+
+      - name: NET_STAKE_CHANGE_RAW
+        description: Net change in wei
+
+      - name: FLOW_DIRECTION
+        description: Direction indicator (net_inflow, net_outflow, neutral)
+
+      - name: CUMULATIVE_NET_CHANGE
+        description: Running total of net stake changes
+
+      - name: EZ_NET_STAKE_CHANGES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_miss_rate
+    description: >
+      Miss rate and estimated commission impact per validator per epoch.
+      Calculates missed blocks and estimates lost commission based on average daily earnings.
+
+    columns:
+      - name: EPOCH
+        description: Epoch number
+
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: VALIDATOR_ADDRESS
+        description: Validator's authority address
+
+      - name: VALIDATORS_IN_SNAPSHOT
+        description: Total validators in the snapshot set
+
+      - name: TOTAL_EPOCH_BLOCKS
+        description: Total blocks in this epoch
+
+      - name: EXPECTED_BLOCKS_PER_VALIDATOR
+        description: Expected blocks per validator (equal distribution)
+
+      - name: ACTUAL_BLOCKS_PRODUCED
+        description: Actual blocks produced by this validator
+
+      - name: BLOCKS_VS_EXPECTED
+        description: Difference between actual and expected
+
+      - name: PCT_OF_EPOCH_BLOCKS
+        description: Percentage of epoch blocks produced
+
+      - name: PRODUCTION_RANK
+        description: Rank by blocks produced in this epoch
+
+      - name: MISSED_BLOCKS
+        description: Number of missed blocks (0 if overproduced)
+
+      - name: MISS_RATE_PCT
+        description: Miss rate as percentage
+
+      - name: UPTIME_PCT
+        description: Uptime percentage (inverse of miss rate)
+
+      - name: AVG_DAILY_COMMISSION_MON
+        description: Average daily commission used for impact calculation
+
+      - name: ESTIMATED_MISSED_COMMISSION_MON
+        description: Estimated commission lost due to misses in MON
+
+      - name: ESTIMATED_MISSED_COMMISSION_USD
+        description: Estimated commission lost in USD
+
+      - name: MON_PRICE_USD
+        description: Current MON price used for USD calculation
+
+      - name: EPOCH_START_TIMESTAMP
+        description: When the epoch started
+
+      - name: EPOCH_END_TIMESTAMP
+        description: When the epoch ended
+
+      - name: EZ_MISS_RATE_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_restart_impact
+    description: >
+      Restart impact estimates per validator. Calculates expected missed blocks and
+      commission loss for different restart durations (5, 15, 30 min, 1 hour).
+
+    columns:
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority/withdrawal address
+
+      - name: AVG_BLOCKS_PER_EPOCH
+        description: Average blocks produced per epoch (recent 10 epochs)
+
+      - name: AVG_PCT_SHARE
+        description: Average percentage of blocks produced
+
+      - name: AVG_REWARDS_PER_EPOCH
+        description: Average block rewards earned per epoch (recent 10 epochs)
+
+      - name: EPOCHS_ANALYZED
+        description: Number of epochs used for averages
+
+      - name: AVG_EPOCH_BLOCKS
+        description: Average blocks per epoch network-wide
+
+      - name: AVG_EPOCH_SECONDS
+        description: Average epoch duration in seconds
+
+      - name: AVG_DAILY_COMMISSION_MON
+        description: Average daily commission (recent 30 days)
+
+      - name: MON_PRICE_USD
+        description: Current MON price
+
+      - name: MISSED_BLOCKS_5MIN
+        description: Estimated missed blocks for 5-minute restart
+
+      - name: LOSS_MON_5MIN
+        description: Estimated commission loss for 5-minute restart in MON
+
+      - name: LOSS_USD_5MIN
+        description: Estimated commission loss for 5-minute restart in USD
+
+      - name: MISSED_BLOCKS_15MIN
+        description: Estimated missed blocks for 15-minute restart
+
+      - name: LOSS_MON_15MIN
+        description: Estimated commission loss for 15-minute restart in MON
+
+      - name: LOSS_USD_15MIN
+        description: Estimated commission loss for 15-minute restart in USD
+
+      - name: MISSED_BLOCKS_30MIN
+        description: Estimated missed blocks for 30-minute restart
+
+      - name: LOSS_MON_30MIN
+        description: Estimated commission loss for 30-minute restart in MON
+
+      - name: LOSS_USD_30MIN
+        description: Estimated commission loss for 30-minute restart in USD
+
+      - name: MISSED_BLOCKS_1HR
+        description: Estimated missed blocks for 1-hour restart
+
+      - name: LOSS_MON_1HR
+        description: Estimated commission loss for 1-hour restart in MON
+
+      - name: LOSS_USD_1HR
+        description: Estimated commission loss for 1-hour restart in USD
+
+      - name: EZ_RESTART_IMPACT_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__ez_compound_decision
+    description: >
+      Compound vs sell decision support data per validator. Aggregates unclaimed rewards,
+      price trends, volatility, and claim activity to provide actionable insights.
+
+    columns:
+      - name: VALIDATOR_ID
+        description: ID of the validator
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels, or 'Validator N' if not labeled
+
+      - name: CONSENSUS_ADDRESS
+        description: Block producer address derived from secp_pubkey. Appears as "miner" in block headers.
+
+      - name: SNAPSHOT_DATE
+        description: Date of the snapshot
+
+      - name: UNCLAIMED_REWARDS
+        description: Current unclaimed rewards in MON
+
+      - name: UNCLAIMED_REWARDS_USD
+        description: Current unclaimed rewards in USD
+
+      - name: CURRENT_PRICE
+        description: Current MON price
+
+      - name: PRICE_1D_AVG
+        description: 1-day average price
+
+      - name: PRICE_7D_AVG
+        description: 7-day average price
+
+      - name: PRICE_30D_AVG
+        description: 30-day average price
+
+      - name: PRICE_30D_LOW
+        description: 30-day low price
+
+      - name: PRICE_30D_HIGH
+        description: 30-day high price
+
+      - name: PRICE_VOLATILITY_30D
+        description: 30-day price standard deviation
+
+      - name: PRICE_CHANGE_7D_PCT
+        description: Price change from 7-day average (%)
+
+      - name: PRICE_CHANGE_30D_PCT
+        description: Price change from 30-day average (%)
+
+      - name: CLAIMS_LAST_30D
+        description: Number of claims in last 30 days
+
+      - name: CLAIMED_AMOUNT_30D
+        description: Total claimed in last 30 days
+
+      - name: LAST_CLAIM_TIMESTAMP
+        description: Timestamp of last claim
+
+      - name: DAYS_SINCE_LAST_CLAIM
+        description: Days since last claim
+
+      - name: EARNINGS_30D
+        description: Total earnings in last 30 days
+
+      - name: AVG_DAILY_EARNINGS
+        description: Average daily earnings
+
+      - name: DAYS_OF_EARNINGS_ACCUMULATED
+        description: Days worth of earnings in unclaimed balance
+
+      - name: RECOMMENDATION
+        description: Simple rule-based recommendation (sell, compound, hold, etc.)
+
+      - name: EZ_COMPOUND_DECISION_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+  - name: gov__dim_validators
+    description: >
+      Dimension table for Monad validators. Combines validator creation data, address mappings,
+      latest snapshot state, and labels to provide a complete validator profile. Key addresses:
+      auth_address is administrative (withdrawals/commission), consensus_address is for block production.
+
+    columns:
+      - name: VALIDATOR_ID
+        description: Unique sequential numeric identifier for the validator
+        tests:
+          - unique
+          - not_null
+
+      - name: VALIDATOR_NAME
+        description: Human-readable validator name from labels or seed metadata
+
+      - name: AUTH_ADDRESS
+        description: Validator's authority address for withdrawals and receiving commission
+        tests:
+          - not_null
+
+      - name: CONSENSUS_ADDRESS
+        description: >
+          Block producer address derived from secp_pubkey via keccak256. Appears as "miner" in block headers.
+          NULL if validator hasn't produced blocks yet.
+
+      - name: CREATED_AT
+        description: Timestamp when the validator was created
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 7
+
+      - name: CREATED_BLOCK
+        description: Block number when the validator was created
+        tests:
+          - not_null
+
+      - name: CREATION_TX_HASH
+        description: Transaction hash of the ValidatorCreated event
+        tests:
+          - not_null
+
+      - name: INITIAL_COMMISSION_PCT
+        description: Initial commission rate as percentage (0-100)
+
+      - name: CURRENT_COMMISSION_PCT
+        description: Current execution commission rate as percentage
+
+      - name: CONSENSUS_COMMISSION_PCT
+        description: Current consensus commission rate as percentage
+
+      - name: FLAGS
+        description: Validator status flags (0 = active, 1 = stake too low)
+
+      - name: STATUS
+        description: Human-readable status (active, stake_too_low, unknown)
+
+      - name: SECP_PUBKEY
+        description: Secp256k1 public key used for consensus
+
+      - name: BLS_PUBKEY
+        description: BLS public key used for consensus
+
+      - name: LATEST_SNAPSHOT_DATE
+        description: Date of the most recent validator snapshot
+
+      - name: GOV__DIM_VALIDATORS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
