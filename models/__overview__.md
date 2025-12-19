@@ -38,6 +38,36 @@ There is more information on how to use dbt docs in the last section of this doc
 - [ez_asset_metadata](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__ez_asset_metadata)
 - [ez_prices_hourly](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.price__ez_prices_hourly)
 
+### DeFi Tables (monad.defi)
+- [ez_bridge_activity](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_bridge_activity)
+- [ex_dex_swaps](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ex_dex_swaps)
+- [dim_dex_liquidity_pools](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__dim_dex_liquidity_pools)
+- [dim_stablecoins](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__dim_stablecoins)
+- [ez_dex_liquidity_pool_actions](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_dex_liquidity_pool_actions)
+- [ez_lending_borrows](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_borrows)
+- [ez_lending_deposits](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_deposits)
+- [ez_lending_withdraws](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_withdraws)
+- [ez_lending_repayments](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_repayments)
+- [ez_lending_liquidations](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_liquidations)
+- [ez_lending_ohlc_rates](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_ohlc_rates)
+- [ez_lending_flashloans](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_lending_flashloans)
+- [ez_stablecoins_supply](https://flipsidecrypto.github.io/monad-models/#!/model/model.fsc_evm.defi__ez_stablecoins_supply)
+
+### Governance Tables (monad.gov)
+- [ez_staking_flows_daily](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_staking_flows_daily)
+- [ez_validator_apr](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_apr)
+- [ez_validator_earnings](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_earnings)
+- [ez_validator_snapshots](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_snapshots)
+- [ez_validator_apr](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_apr)
+- [ez_validator_earnings](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_earnings)
+- [ez_validator_snapshots](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_snapshots)
+- [ez_validator_apr](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_apr)
+- [ez_validator_earnings](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_earnings)
+- [ez_validator_snapshots](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_snapshots)
+- [ez_validator_apr](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_apr)
+- [ez_validator_earnings](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_earnings)
+- [ez_validator_snapshots](https://flipsidecrypto.github.io/monad-models/#!/model/model.monad.gov__ez_validator_snapshots)
+
 ## **Helpful User-Defined Functions (UDFs)**
 
 UDFs are custom functions built by the Flipside team that can be used in your queries to make your life easier. 
