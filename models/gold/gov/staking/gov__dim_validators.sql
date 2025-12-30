@@ -51,7 +51,7 @@ latest_snapshots AS (
         {{ ref('gov__fact_validator_snapshots') }}
 ),
 
--- Get validator name from labels (join on auth_address)
+-- Get validator name from labels (join on consensus_address since that's what labels use)
 validator_labels AS (
     SELECT
         address,
@@ -60,9 +60,7 @@ validator_labels AS (
     FROM
         {{ ref('core__dim_labels') }}
     WHERE
-        label_type = 'operator'
-        OR label_subtype = 'validator'
-        OR address_name IS NOT NULL
+        label_subtype = 'validator'
 )
 
 SELECT
@@ -99,4 +97,4 @@ LEFT JOIN
     AND ls.rn = 1
 LEFT JOIN
     validator_labels vl
-    ON LOWER(vc.auth_address) = LOWER(vl.address)
+    ON LOWER(a.consensus_address) = LOWER(vl.address)
