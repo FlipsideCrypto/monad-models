@@ -45,7 +45,7 @@ last_blocks AS (
     FROM
        {{ ref('_max_block_by_date') }}
     WHERE
-        block_date >= DATEADD('day', -7, CURRENT_DATE)
+        block_date >= DATEADD('day', -16, CURRENT_DATE)
         AND block_date < CURRENT_DATE
 {% if is_incremental() %}
         AND block_date NOT IN (SELECT DISTINCT snapshot_date FROM {{ this }})

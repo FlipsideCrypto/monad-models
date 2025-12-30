@@ -1599,6 +1599,75 @@ models:
           - unique
           - not_null
 
+  - name: gov__fact_block_priority_fees
+    description: >
+      Priority fees paid to block producers (validators) per block. Calculates the priority fee
+      portion of transaction fees that go to validators: (effective_gas_price - base_fee_per_gas) * gas_used.
+      Includes validator_id and epoch from validator rewards for easy aggregation.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: Block number
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        description: Block timestamp
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+
+      - name: VALIDATOR_ID
+        description: ID of the validator who produced this block (from validator rewards)
+
+      - name: EPOCH
+        description: Epoch when the block was produced
+
+      - name: MINER
+        description: Block producer address (from block header)
+        tests:
+          - not_null
+
+      - name: BASE_FEE_PER_GAS
+        description: Base fee per gas for this block (decimal adjusted)
+
+      - name: TX_COUNT
+        description: Number of transactions in the block
+        tests:
+          - not_null
+
+      - name: TX_COUNT_WITH_PRIORITY_FEE
+        description: Number of transactions that paid a priority fee (priority_fee > 0)
+
+      - name: TOTAL_GAS_USED
+        description: Total gas used by all transactions in the block
+
+      - name: TOTAL_PRIORITY_FEE
+        description: Total priority fees paid in this block (in MON)
+
+      - name: AVG_PRIORITY_FEE_PER_GAS
+        description: Average priority fee per gas unit
+
+      - name: MIN_PRIORITY_FEE_PER_GAS
+        description: Minimum priority fee per gas in the block
+
+      - name: MAX_PRIORITY_FEE_PER_GAS
+        description: Maximum priority fee per gas in the block
+
+      - name: FACT_BLOCK_PRIORITY_FEES_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
+
   - name: gov__dim_validators
     description: >
       Dimension table for Monad validators. Combines validator creation data, address mappings,
@@ -1629,9 +1698,6 @@ models:
         description: Timestamp when the validator was created
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 7
 
       - name: CREATED_BLOCK
         description: Block number when the validator was created

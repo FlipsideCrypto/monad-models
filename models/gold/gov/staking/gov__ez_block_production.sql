@@ -26,6 +26,7 @@ WITH block_producers AS (
         {{ ref('gov__fact_validator_rewards') }} r
     WHERE
         r.origin_to_address = '0x0000000000000000000000000000000000001000'
+        AND r.origin_function_signature = '0x791bdcf3'  -- syscallReward  
 ),
 
 aggregated AS (
