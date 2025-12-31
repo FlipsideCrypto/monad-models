@@ -16,15 +16,20 @@ This document maps the Monad validator staking data infrastructure to specific a
 
 Monad validators have multiple address types:
 
-| Address Type | Source | Purpose |
-|--------------|--------|---------|
-| `validator_id` | On-chain (uint64) | Unique identifier assigned at validator creation |
-| `auth_address` | ValidatorCreated event | Administrative address for withdrawals, receiving commission |
-| `consensus_address` | Derived from secp_pubkey | Block production address (appears in `block.miner`) |
-| `secp_pubkey` | getValidator() snapshot | SECP256k1 public key for block signing |
-| `bls_pubkey` | getValidator() snapshot | BLS public key for consensus |
+| Address Type | Source | Available In | Purpose |
+|--------------|--------|--------------|---------|
+| `validator_id` | On-chain (uint64) | `dim_validators` | Unique identifier assigned at validator creation |
+| `auth_address` | ValidatorCreated event | `dim_validators` | Administrative address for withdrawals, receiving commission |
+| `consensus_address` | Derived from secp_pubkey | `dim_validators` | Used for consensus/signing |
+| `beneficiary_address` | `block.miner` field | `core__fact_blocks` only | Receives priority fees from block production |
+| `secp_pubkey` | getValidator() snapshot | `dim_validators` | SECP256k1 public key for block signing |
+| `bls_pubkey` | getValidator() snapshot | `dim_validators` | BLS public key for consensus |
 
-**Important**: The `miner` field in blocks corresponds to `consensus_address`, not `auth_address`. Validator labels in `core__dim_labels` use `consensus_address`.
+**Important**:
+- The `miner` field in blocks is the **beneficiary address** which receives priority fees
+- The beneficiary address is NOT the same as the consensus_address
+- Beneficiary address is only available via `block.miner` in `core__fact_blocks`
+- Validator labels in `core__dim_labels` are keyed on `consensus_address`
 
 ### Data Limitations
 
@@ -116,11 +121,11 @@ Monad uses EIP-1559 with a custom base fee controller:
 
 1. Transaction sender pays `effective_gas_price * gas_used`
 2. `base_fee * gas_used` is burned
-3. `priority_fee` goes to the block producer (validator's consensus_address)
+3. `priority_fee` goes to the block producer's beneficiary address (`block.miner`)
 
 ### Data Validation
 
-Priority fees were validated by comparing calculated values against actual balance changes for validator consensus addresses. Results showed differences of < 0.000001 MON (6+ decimal precision) on days without external transfers.
+Priority fees were validated by comparing calculated values against actual balance changes for validator beneficiary addresses (`block.miner`). Results showed differences of < 0.000001 MON (6+ decimal precision) on days without external transfers.
 
 ---
 
@@ -146,7 +151,7 @@ Where:
 
 ### 2. Priority Fees
 
-Priority fees go directly to the block producer's consensus_address (not through the staking contract).
+Priority fees go directly to the block producer's beneficiary address (`block.miner`), not through the staking contract.
 
 ```sql
 -- Priority fees per day per validator
