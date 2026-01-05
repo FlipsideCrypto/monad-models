@@ -36,7 +36,7 @@ price_trend AS (
         MIN(CASE WHEN hour >= DATEADD('day', -30, CURRENT_TIMESTAMP) THEN price END) AS price_30d_low,
         MAX(CASE WHEN hour >= DATEADD('day', -30, CURRENT_TIMESTAMP) THEN price END) AS price_30d_high
     FROM {{ ref('price__ez_prices_hourly') }}
-    WHERE token_address = '0x0000000000000000000000000000000000000000'
+    WHERE is_native
       AND hour >= DATEADD('day', -30, CURRENT_TIMESTAMP)
 ),
 

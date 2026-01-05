@@ -60,7 +60,7 @@ current_price AS (
         COALESCE(
             (SELECT price
              FROM {{ ref('price__ez_prices_hourly') }}
-             WHERE token_address = '0x0000000000000000000000000000000000000000'
+             WHERE is_native
              ORDER BY hour DESC
              LIMIT 1),
             0

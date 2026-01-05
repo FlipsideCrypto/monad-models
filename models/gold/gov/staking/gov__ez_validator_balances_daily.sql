@@ -108,7 +108,7 @@ prices AS (
     FROM
         {{ ref('price__ez_prices_hourly') }}
     WHERE
-        token_address = '0x0000000000000000000000000000000000000000'
+        is_native
     QUALIFY ROW_NUMBER() OVER (PARTITION BY hour::DATE ORDER BY hour DESC) = 1
 )
 
