@@ -602,8 +602,10 @@ models:
   - name: gov__ez_validator_totals_daily
     description: >
       Daily staking totals rolled up to the validator level. Aggregates all delegator balances
-      per validator per day. Includes total active stake, pending withdrawals, delegator counts,
-      and USD valuations.
+      per validator per day from ez_staking_balances_daily. Includes total active stake, pending
+      withdrawals, delegator counts, and USD valuations.
+      NOTE: Inherits event-based limitations from ez_staking_balances_daily - if event history is
+      incomplete, totals may be inaccurate. For authoritative stake data, use fact_validator_snapshots.
 
     columns:
       - name: BALANCE_DATE
@@ -659,10 +661,13 @@ models:
 
   - name: gov__ez_staking_balances_daily
     description: >
-      End of day staking balances for each validator-delegator pair.
+      End of day staking balances for each validator-delegator pair, reconstructed from event history.
       Tracks three balance states: active (delegated), pending withdrawal (undelegated but not withdrawn),
       and total at risk (both active and pending are subject to slashing until withdrawn).
       Flow: Delegate increases active -> Undelegate moves active to pending -> Withdraw removes pending.
+      IMPORTANT: This table calculates balances from delegation/undelegation/withdrawal events. If event
+      history is incomplete (e.g., delegations before data collection started), balances may be inaccurate.
+      For authoritative stake data, use fact_validator_snapshots.snapshot_stake which queries on-chain state directly.
 
     columns:
       - name: BALANCE_DATE
@@ -888,10 +893,11 @@ models:
   - name: gov__ez_validator_epoch_performance
     description: >
       Validator performance per epoch comparing expected vs actual block production.
-      Shows all validators in the snapshot set with their actual blocks produced,
-      production rank within epoch, and percentage of total blocks mined.
-      Left joins snapshot validators to block production so validators who produced
-      zero blocks are still included.
+      Expected blocks are now weighted by each validator's stake proportion at epoch start,
+      using snapshot_stake from fact_validator_snapshots. Shows all validators in the
+      snapshot set with their actual blocks produced, production rank within epoch,
+      and percentage of total blocks mined. Left joins snapshot validators to block
+      production so validators who produced zero blocks are still included.
 
     columns:
       - name: EPOCH
@@ -918,17 +924,29 @@ models:
       - name: TOTAL_EPOCH_BLOCKS
         description: Total blocks in this epoch
 
+      - name: VALIDATOR_STAKE
+        description: Validator's snapshot_stake at epoch start (from fact_validator_snapshots, previous day's end-of-day snapshot)
+
+      - name: TOTAL_EPOCH_STAKE
+        description: Sum of all validators' snapshot_stake for this epoch
+
+      - name: STAKE_WEIGHT
+        description: Validator's proportion of total stake (validator_stake / total_epoch_stake)
+
       - name: EXPECTED_BLOCKS_PER_VALIDATOR
-        description: Expected blocks per validator assuming equal distribution (total_epoch_blocks / validators_in_snapshot)
+        description: Expected blocks weighted by stake proportion (total_epoch_blocks * stake_weight)
 
       - name: ACTUAL_BLOCKS_PRODUCED
         description: Actual number of blocks produced by this validator in this epoch
 
       - name: BLOCKS_VS_EXPECTED
-        description: Difference between actual and expected blocks (positive = overperformed, negative = underperformed)
+        description: Difference between actual and stake-weighted expected blocks (positive = overperformed, negative = underperformed)
 
       - name: PCT_OF_EPOCH_BLOCKS
-        description: Percentage of total epoch blocks produced by this validator
+        description: Actual percentage of total epoch blocks produced by this validator
+
+      - name: EXPECTED_PCT_OF_EPOCH_BLOCKS
+        description: Expected percentage of epoch blocks based on stake weight
 
       - name: PRODUCTION_RANK
         description: Rank of validator by blocks produced within this epoch (1 = most blocks)
