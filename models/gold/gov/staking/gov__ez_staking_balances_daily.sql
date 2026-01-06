@@ -16,9 +16,31 @@ Flow:
 - Delegate: increases active_balance
 - Undelegate: decreases active_balance, increases pending_withdrawal_balance
 - Withdraw: decreases pending_withdrawal_balance (funds returned to delegator)
+
+IMPORTANT: This model calculates balances from event history. If events are missing
+(e.g., delegations before data collection started), balances will be incorrect.
+For accurate point-in-time balances, use fact_validator_snapshots instead.
+
+A full refresh is required after fixing the incremental logic to rebuild correct balances.
 */
 
-WITH date_spine AS (
+WITH
+{% if is_incremental() %}
+-- Get the last known balances before our incremental window as starting point
+previous_balances AS (
+    SELECT
+        validator_id,
+        delegator_address,
+        active_balance AS prev_active_balance,
+        pending_withdrawal_balance AS prev_pending_balance
+    FROM
+        {{ this }}
+    WHERE
+        balance_date = (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
+),
+{% endif %}
+
+date_spine AS (
     SELECT
         date_day AS balance_date
     FROM
@@ -26,7 +48,7 @@ WITH date_spine AS (
     WHERE
         date_day <= CURRENT_DATE
 {% if is_incremental() %}
-        AND date_day >= (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
+        AND date_day > (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
 {% endif %}
 ),
 
@@ -40,6 +62,10 @@ delegations AS (
         0 AS pending_change
     FROM
         {{ ref('gov__fact_delegations') }}
+{% if is_incremental() %}
+    WHERE
+        block_timestamp::DATE > (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
+{% endif %}
 ),
 
 -- Undelegations move from active to pending withdrawal
@@ -52,6 +78,10 @@ undelegations AS (
         amount AS pending_change
     FROM
         {{ ref('gov__fact_undelegations') }}
+{% if is_incremental() %}
+    WHERE
+        block_timestamp::DATE > (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
+{% endif %}
 ),
 
 -- Withdrawals remove from pending (funds returned to delegator)
@@ -64,6 +94,10 @@ withdrawals AS (
         -amount AS pending_change
     FROM
         {{ ref('gov__fact_withdrawals') }}
+{% if is_incremental() %}
+    WHERE
+        block_timestamp::DATE > (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
+{% endif %}
 ),
 
 all_actions AS (
@@ -75,12 +109,21 @@ all_actions AS (
 ),
 
 -- Get all unique validator-delegator pairs
+-- In incremental mode, include pairs from previous balances + new actions
 validator_delegator_pairs AS (
     SELECT DISTINCT
         validator_id,
         delegator_address
     FROM
         all_actions
+{% if is_incremental() %}
+    UNION
+    SELECT DISTINCT
+        validator_id,
+        delegator_address
+    FROM
+        previous_balances
+{% endif %}
 ),
 
 -- Cross join pairs with dates to get all possible combinations
@@ -119,6 +162,20 @@ balances AS (
         pwd.delegator_address,
         COALESCE(dc.daily_active_change, 0) AS daily_active_change,
         COALESCE(dc.daily_pending_change, 0) AS daily_pending_change,
+{% if is_incremental() %}
+        -- In incremental mode, add previous balance as starting point
+        COALESCE(pb.prev_active_balance, 0) + SUM(COALESCE(dc.daily_active_change, 0)) OVER (
+            PARTITION BY pwd.validator_id, pwd.delegator_address
+            ORDER BY pwd.balance_date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS active_balance,
+        COALESCE(pb.prev_pending_balance, 0) + SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
+            PARTITION BY pwd.validator_id, pwd.delegator_address
+            ORDER BY pwd.balance_date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS pending_withdrawal_balance
+{% else %}
+        -- Full refresh: sum from beginning
         SUM(COALESCE(dc.daily_active_change, 0)) OVER (
             PARTITION BY pwd.validator_id, pwd.delegator_address
             ORDER BY pwd.balance_date
@@ -129,6 +186,7 @@ balances AS (
             ORDER BY pwd.balance_date
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         ) AS pending_withdrawal_balance
+{% endif %}
     FROM
         pairs_with_dates pwd
     LEFT JOIN
@@ -136,6 +194,12 @@ balances AS (
         ON pwd.balance_date = dc.action_date
         AND pwd.validator_id = dc.validator_id
         AND pwd.delegator_address = dc.delegator_address
+{% if is_incremental() %}
+    LEFT JOIN
+        previous_balances pb
+        ON pwd.validator_id = pb.validator_id
+        AND pwd.delegator_address = pb.delegator_address
+{% endif %}
 )
 
 SELECT

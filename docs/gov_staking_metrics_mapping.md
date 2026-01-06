@@ -7,7 +7,7 @@ This document maps the Monad validator staking data infrastructure to specific a
 ### Key Design Decisions
 
 - **End-of-day snapshots**: Validator state captured at last block before midnight UTC, providing execution stake, commission rates, and unclaimed rewards without complex calculation logic
-- **Block production tracking**: Per-epoch performance with missed block detection by comparing proposed blocks vs active validator set
+- **Block production tracking**: Per-epoch performance with stake-weighted expected blocks and missed block detection
 - **Priority fee tracking**: Block-level priority fees calculated from transaction data, attributed to block producer via validator_id
 - **USD valuations**: Calculated at time of event/snapshot using end-of-day native token prices
 - **14-16 day rolling window**: Monad state history is limited; tables build forward from current point
@@ -78,10 +78,10 @@ Monad validators have multiple address types:
 | Table | Purpose |
 |-------|---------|
 | `gov__ez_block_production` | Blocks produced per validator per epoch |
-| `gov__ez_staking_balances_daily` | Daily delegator balances (active + pending) |
+| `gov__ez_staking_balances_daily` | Daily delegator balances (active + pending) - event-based, see note* |
 | `gov__ez_validator_balances_daily` | Validator wallet balances with USD |
 | `gov__ez_validator_self_stake` | Self-stake percentage |
-| `gov__ez_validator_epoch_performance` | Expected vs actual blocks, rank, % of epoch |
+| `gov__ez_validator_epoch_performance` | Stake-weighted expected vs actual blocks, rank, % of epoch |
 | `gov__ez_validator_earnings` | Daily validator earnings (commission + priority fees) |
 | `gov__ez_validator_apr` | Daily and rolling APR/APY per validator |
 | `gov__ez_staking_flows_daily` | Daily staking flows by type (delegation, undelegation, withdrawal, claim) |
@@ -90,6 +90,8 @@ Monad validators have multiple address types:
 | `gov__ez_restart_impact` | Restart impact estimates per validator |
 | `gov__ez_compound_decision` | Compound vs sell decision support data |
 | `gov__ez_validator_totals_daily` | Daily validator-level balance totals with delegator counts |
+
+*\*Note on `ez_staking_balances_daily`: This table reconstructs balances from delegation/undelegation/withdrawal events. If event history is incomplete (e.g., delegations before data collection started), balances may be inaccurate. For authoritative stake data, use `fact_validator_snapshots.snapshot_stake` which queries on-chain state directly via LiveQuery.*
 
 ---
 
@@ -191,7 +193,7 @@ SELECT
     initial_commission_pct,
     current_commission_pct,
     status
-FROM monad_dev.gov.dim_validators
+FROM monad.gov.dim_validators
 ORDER BY validator_id;
 ```
 
@@ -206,7 +208,7 @@ SELECT
     validator_id,
     auth_address AS authority_address,
     consensus_address AS block_producer_address
-FROM monad_dev.gov.dim_validators;
+FROM monad.gov.dim_validators;
 ```
 
 **Gap**: Staking/registration wallet, beneficiary/fee wallet, and payout/distribution wallets are not tracked on-chain. Requires user-supplied mapping table.
@@ -224,7 +226,7 @@ SELECT
     v.consensus_address,
     m.wallet_address,
     m.wallet_role
-FROM monad_dev.gov.dim_validators v
+FROM monad.gov.dim_validators v
 LEFT JOIN validators_wallet_mapping m ON v.validator_id = m.validator_id;
 ```
 
@@ -247,7 +249,7 @@ SELECT
     blocks_produced,
     total_earned,
     total_earned_usd
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 ORDER BY earning_date DESC, validator_id;
 
 -- Weekly earnings
@@ -260,7 +262,7 @@ SELECT
     SUM(blocks_produced) AS blocks_produced,
     SUM(total_earned) AS total_earned,
     SUM(total_earned_usd) AS total_earned_usd
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 GROUP BY 1, 2
 ORDER BY 1 DESC, 2;
 
@@ -270,7 +272,7 @@ SELECT
     validator_id,
     SUM(total_earned) AS total_earned,
     SUM(total_earned_usd) AS total_earned_usd
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 GROUP BY 1, 2
 ORDER BY 1 DESC, 2;
 ```
@@ -289,7 +291,7 @@ SELECT
     claimed_rewards + unclaimed_change AS staking_rewards,  -- commission + self-stake
     priority_fees,                                           -- block production tips
     total_earned
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 ORDER BY earning_date DESC;
 
 -- Priority fees by block (detailed)
@@ -301,7 +303,7 @@ SELECT
     tx_count_with_priority_fee,
     total_priority_fee,
     avg_priority_fee_per_gas
-FROM monad_dev.gov.fact_block_priority_fees
+FROM monad.gov.fact_block_priority_fees
 ORDER BY block_number DESC;
 ```
 
@@ -323,7 +325,7 @@ SELECT
     SUM(total_earned) AS total_mon_earned,
     SUM(priority_fees) AS total_priority_fees,
     SUM(claimed_rewards + unclaimed_change) AS total_staking_rewards
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 GROUP BY 1
 ORDER BY total_mon_earned DESC;
 ```
@@ -343,7 +345,7 @@ SELECT
     priority_fees,
     priority_fees_usd,
     mon_price_usd
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 ORDER BY earning_date DESC;
 ```
 
@@ -362,7 +364,7 @@ SELECT
     apy_pct,
     apr_7d_rolling_pct,
     apr_30d_rolling_pct
-FROM monad_dev.gov.ez_validator_apr
+FROM monad.gov.ez_validator_apr
 ORDER BY earning_date DESC, validator_id;
 ```
 
@@ -381,7 +383,7 @@ SELECT
     total_earned,
     total_earned_usd,
     unclaimed_balance
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 ORDER BY earning_date DESC;
 ```
 
@@ -405,7 +407,7 @@ SELECT
     avg_reward_per_block,
     first_block_timestamp,
     last_block_timestamp
-FROM monad_dev.gov.ez_block_production
+FROM monad.gov.ez_block_production
 ORDER BY epoch DESC, blocks_produced DESC;
 
 -- Priority fees per block
@@ -421,8 +423,32 @@ SELECT
     total_priority_fee,
     avg_priority_fee_per_gas,
     base_fee_per_gas
-FROM monad_dev.gov.fact_block_priority_fees
+FROM monad.gov.fact_block_priority_fees
 ORDER BY block_number DESC;
+```
+
+#### Stake-weighted epoch performance
+**Status**: ✅ Available
+
+Expected blocks are now weighted by each validator's stake proportion at epoch start, using `snapshot_stake` from `fact_validator_snapshots`.
+
+```sql
+-- Validator performance with stake weighting
+SELECT
+    epoch,
+    validator_id,
+    validator_name,
+    validator_stake,                    -- Validator's stake at epoch start
+    total_epoch_stake,                  -- Sum of all validators' stake
+    stake_weight,                       -- validator_stake / total_epoch_stake
+    expected_blocks_per_validator,      -- total_blocks * stake_weight
+    actual_blocks_produced,
+    blocks_vs_expected,                 -- actual - expected (stake-weighted)
+    pct_of_epoch_blocks,                -- Actual % of blocks produced
+    expected_pct_of_epoch_blocks,       -- Expected % based on stake weight
+    production_rank
+FROM monad.gov.ez_validator_epoch_performance
+ORDER BY epoch DESC, production_rank;
 ```
 
 ---
@@ -440,7 +466,7 @@ SELECT
     validator_address,
     balance AS mon_balance,
     balance_usd
-FROM monad_dev.gov.ez_validator_balances_daily
+FROM monad.gov.ez_validator_balances_daily
 ORDER BY validator_id, balance_date DESC;
 
 -- Stake balances from snapshots
@@ -451,7 +477,7 @@ SELECT
     execution_stake_usd,
     consensus_stake,
     consensus_stake_usd
-FROM monad_dev.gov.fact_validator_snapshots
+FROM monad.gov.fact_validator_snapshots
 ORDER BY validator_id, snapshot_date DESC;
 ```
 
@@ -468,7 +494,7 @@ SELECT
     flow_type,
     amount,
     tx_count
-FROM monad_dev.gov.ez_staking_flows_daily
+FROM monad.gov.ez_staking_flows_daily
 ORDER BY flow_date DESC;
 ```
 
@@ -494,7 +520,7 @@ SELECT
         THEN 'internal'
         ELSE 'external'
     END AS flow_type
-FROM monad_dev.core.ez_native_transfers t
+FROM monad.core.ez_native_transfers t
 WHERE t.from_address IN (SELECT wallet_address FROM validator_wallets);
 ```
 
@@ -512,7 +538,7 @@ SELECT
     net_stake_change,
     flow_direction,
     cumulative_net_change
-FROM monad_dev.gov.ez_net_stake_changes
+FROM monad.gov.ez_net_stake_changes
 ORDER BY change_date DESC;
 ```
 
@@ -540,7 +566,7 @@ SELECT
     SUM(total_earned_usd) AS gross_revenue_usd,
     SUM(priority_fees) AS priority_fee_revenue,
     SUM(claimed_rewards + unclaimed_change) AS staking_revenue
-FROM monad_dev.gov.ez_validator_earnings
+FROM monad.gov.ez_validator_earnings
 GROUP BY 1, 2
 ORDER BY 1 DESC, 2;
 ```
@@ -552,16 +578,19 @@ ORDER BY 1 DESC, 2;
 #### 20. Uptime / availability per epoch
 **Status**: ✅ Available
 
+Expected blocks are stake-weighted based on each validator's proportion of total stake.
+
 ```sql
 SELECT
     epoch,
     validator_id,
-    validators_in_snapshot,
-    expected_blocks_per_validator,
+    validator_stake,
+    stake_weight,
+    expected_blocks_per_validator,      -- Stake-weighted expected blocks
     actual_blocks_produced,
-    ROUND(actual_blocks_produced / NULLIF(expected_blocks_per_validator, 0) * 100, 2) AS uptime_pct,
-    blocks_vs_expected
-FROM monad_dev.gov.ez_validator_epoch_performance
+    blocks_vs_expected,
+    ROUND(actual_blocks_produced / NULLIF(expected_blocks_per_validator, 0) * 100, 2) AS performance_pct
+FROM monad.gov.ez_validator_epoch_performance
 ORDER BY epoch DESC, validator_id;
 ```
 
@@ -581,7 +610,7 @@ SELECT
     uptime_pct,
     estimated_missed_commission_mon,
     estimated_missed_commission_usd
-FROM monad_dev.gov.ez_miss_rate
+FROM monad.gov.ez_miss_rate
 ORDER BY epoch DESC, miss_rate_pct DESC;
 ```
 
@@ -611,7 +640,7 @@ SELECT
     missed_blocks_15min, loss_usd_15min,
     missed_blocks_30min, loss_usd_30min,
     missed_blocks_1hr, loss_usd_1hr
-FROM monad_dev.gov.ez_restart_impact
+FROM monad.gov.ez_restart_impact
 ORDER BY avg_daily_commission_mon DESC;
 ```
 
@@ -631,7 +660,7 @@ SELECT
     price_change_30d_pct,
     days_since_last_claim,
     recommendation
-FROM monad_dev.gov.ez_compound_decision
+FROM monad.gov.ez_compound_decision
 ORDER BY unclaimed_rewards_usd DESC;
 ```
 
@@ -670,6 +699,7 @@ ORDER BY unclaimed_rewards_usd DESC;
 | 31 | Compound vs sell data | ✅ | `ez_compound_decision` |
 | NEW | Block-level priority fees | ✅ | `fact_block_priority_fees` |
 | NEW | Block production metrics | ✅ | `ez_block_production` |
+| NEW | Stake-weighted block expectations | ✅ | `ez_validator_epoch_performance` |
 
 ---
 
@@ -683,6 +713,8 @@ silver__staking_events
     │               ├── gov__ez_block_production
     │               └── gov__ez_restart_impact
     ├── gov__fact_delegations
+    │       └── gov__ez_staking_balances_daily
+    │               └── gov__ez_validator_totals_daily
     ├── gov__fact_undelegations
     ├── gov__fact_withdrawals
     ├── gov__fact_validator_rewards
@@ -696,7 +728,11 @@ silver__staking_events
 
 silver__snapshot_get_validator
     └── gov__fact_validator_snapshots
-            └── gov__ez_validator_apr
+            ├── gov__ez_validator_apr
+            └── gov__ez_validator_epoch_performance (stake weighting)
+
+silver__snapshot_validator_set
+    └── gov__ez_validator_epoch_performance (validator set per epoch)
 
 silver__snapshot_get_delegator
     └── gov__fact_validator_self_delegation_snapshots
