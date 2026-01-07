@@ -108,6 +108,10 @@ models:
           +enabled: true
         stablecoins:
           +enabled: true
+        tvl:
+          +enabled: true
+      contract_reads:
+        +enabled: true
     balances_package:
       +enabled: false
       erc20:
