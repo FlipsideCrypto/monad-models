@@ -1751,6 +1751,33 @@ models:
       - name: LATEST_SNAPSHOT_DATE
         description: Date of the most recent validator snapshot
 
+      - name: WEBSITE
+        description: Validator website URL from external metadata
+
+      - name: IMAGE
+        description: Validator logo/image URL from external metadata
+
+      - name: CITY
+        description: City where validator node is located
+
+      - name: REGION
+        description: State/province/region where validator node is located
+
+      - name: COUNTRY
+        description: Country where validator node is located
+
+      - name: TIMEZONE
+        description: Timezone of validator node location
+
+      - name: LATITUDE
+        description: Geographic latitude of validator node
+
+      - name: LONGITUDE
+        description: Geographic longitude of validator node
+
+      - name: IP_ADDRESS
+        description: IP address of validator node
+
       - name: GOV__DIM_VALIDATORS_ID
         description: Unique identifier for this record
         tests:
@@ -1766,3 +1793,59 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 2
+
+  - name: gov__dim_miner_validators
+    description: >
+      Slowly Changing Dimension (Type 2) tracking miner address to validator ID relationships.
+      Each row represents a period where a specific miner was the block producer for a validator.
+      Ranges are defined by start/end blocks showing when each miner-validator association was active.
+      A new range is created when a validator switches to a different miner address.
+
+    columns:
+      - name: VALIDATOR_ID
+        description: ID of the validator
+        tests:
+          - not_null
+
+      - name: MINER
+        description: Block producer address from block headers
+        tests:
+          - not_null
+
+      - name: START_BLOCK
+        description: First block where this miner-validator association was active
+        tests:
+          - not_null
+
+      - name: END_BLOCK
+        description: Last block where this miner-validator association was active (updated incrementally)
+
+      - name: START_TIMESTAMP
+        description: Timestamp of the start block
+
+      - name: END_TIMESTAMP
+        description: Timestamp of the end block
+
+      - name: BLOCKS_PRODUCED
+        description: Number of blocks produced during this range
+
+      - name: DURATION_SECONDS
+        description: Duration of this range in seconds
+
+      - name: IS_CURRENT
+        description: Whether this is the current active range for this validator
+
+      - name: NEXT_MINER
+        description: The miner address that took over after this range (NULL if current)
+
+      - name: DIM_MINER_VALIDATORS_ID
+        description: Unique identifier for this record
+        tests:
+          - unique
+          - not_null
+
+      - name: INSERTED_TIMESTAMP
+        description: Timestamp when the record was inserted
+
+      - name: MODIFIED_TIMESTAMP
+        description: Timestamp when the record was last modified
