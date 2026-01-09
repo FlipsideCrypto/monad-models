@@ -1,0 +1,172 @@
+validator_id,validator_name,website,image,city,region,country,timezone,latitude,longitude,ip_address
+3,gmonads.com,https://www.gmonads.com/,https://www.gmonads.com/logo.png,London,England,United Kingdom,Europe/London,51.50853,-0.12574,64.130.63.10
+4,B-Harvest,https://bharvest.io,https://s3.ap-northeast-2.amazonaws.com/bharvest.io/logo/B-Harvest-Logo-x256.png,Seoul,Seoul,South Korea,Asia/Seoul,37.566,126.9784,180.189.55.12
+5,Alchemy,https://www.alchemy.com,https://static.alchemyapi.io/logos/alchemy-mark-on-light.png,Lille,Hauts-de-France,France,Europe/Paris,50.633,3.0586,51.38.30.18
+6,ProStaking,https://prostaking.com/,https://bafybeigaa3mbr4qe4hgc55e6srfliawtzdebrs3lrieas63dfc4vdyhiii.ipfs.w3s.link/ProStaking-CircleMark-360px.png,Baton Rouge,Louisiana,United States,America/Chicago,30.44332,-91.18747,69.2.42.117
+7,Staking4All,https://www.staking4all.org/,https://raw.githubusercontent.com/staking4all/eigenlayer/main/Stake4All_logo.png,Strasbourg,Grand Est,France,Europe/Paris,48.58392,7.74553,134.119.214.211
+8,DSRV,https://dsrv.com,https://s3.amazonaws.com/keybase_processed_uploads/8349f3ab6852a8419c1987ad9096c605_360_360.jpg,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,15.235.228.167
+9,Everstake,https://everstake.one/,https://everstake.one/logo.png,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,51.68.25.46
+10,Stakin,https://stakin.com/,https://stakin-data.s3.eu-west-2.amazonaws.com/Stakin+Avatar+Square.png,Chicago,Illinois,United States,America/Chicago,41.85003,-87.65005,185.8.107.238
+11,Pier Two,https://piertwo.com/,https://avatars.githubusercontent.com/u/125952310,Sydney,New South Wales,Australia,Australia/Sydney,-33.86785,151.20732,51.161.222.88
+12,Chorus One,https://chorus.one/,https://mirror.chorus.one/c1-logo-circle-1024x1024.png,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,84.32.64.70
+13,kjnodes,https://kjnodes.com,https://services.kjnodes.com/assets/images/logos/kjnodes.png,Sydney,New South Wales,Australia,Australia/Sydney,-33.86785,151.20732,51.161.218.90
+14,StarlightNode,https://starlightnode.com/,https://starlightnode.com/wp-content/uploads/2025/11/starlighticon.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.139,8.6725,185.191.118.162
+15,Staker Space,https://staker.space,https://raw.githubusercontent.com/StakerSpace/assets/main/logo.png,Rotterdam,Flevoland,The Netherlands,Europe/Amsterdam,51.9225,4.47917,185.52.237.98
+16,MonadVision,https://blockvision.org,https://blockvision.org/logo-purple.svg,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,15.235.227.110
+17,Cosmostation,https://cosmostation.io/,https://raw.githubusercontent.com/cosmostation/chainlist/4deea8224437cdff96dc588d1671bd63b3cff1f3/resource/cosmostation/cosmostation_black_bg(256x256).png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.139,8.6725,185.191.118.21
+18,deNodes,https://denodes.io/,https://s3.amazonaws.com/keybase_processed_uploads/09c7999790959bbbd85b7007adf70205_360_360.jpg,Santa Clara,California,United States,America/Los_Angeles,37.35411,-121.95524,216.106.185.120
+19,Natsai,https://www.natsai.xyz/,https://avatars.githubusercontent.com/u/197120902?v=4,Salt Lake City,Utah,United States,America/Denver,40.76078,-111.89105,216.158.67.242
+20,Lemniscap,https://lemniscap.com/,https://static.lemniscap.com/assets/icon.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.139,8.6725,185.191.118.158
+21,Redundex,https://www.redundex.com,https://storage.googleapis.com/redundex.com/logo/compact-logo.png,Chicago,Illinois,United States,America/Chicago,41.85003,-87.65005,186.233.186.151
+22,Enigma,https://enigma-validator.com/,https://raw.githubusercontent.com/Enigma-Validator/enigma-assets/refs/heads/main/enigma-logo.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,15.235.227.122
+23,Nansen | Stake to Stack Points,https://www.nansen.ai,https://raw.githubusercontent.com/nansen-ai/staking-brand-assets/main/nansen_logo.svg,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,148.113.222.226
+24,BlockPI,https://blockpi.io/,https://static.blockpi.io/blockpi-logo-mini.png,Nürnberg,Bavaria,Germany,Europe/Berlin,49.45421,11.07752,167.235.124.205
+25,Twinstake,https://www.twinstake.com/,https://s3.amazonaws.com/keybase_processed_uploads/cd5ed2719db24ffa391fc092e3a1e105_360_360.jpg,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,155.2.223.5
+26,ContributionDAO,https://staking.contributiondao.com/,https://raw.githubusercontent.com/Contribution-DAO/contributiondao/main/brand-assets/cdao-logo-white.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,15.235.228.165
+27,ValiDAO,https://validao.xyz/,https://pbs.twimg.com/profile_images/1932719728662831104/Rmp-zeGO_400x400.jpg,Singapore,Singapore,Singapore,Asia/Singapore,1.3557,103.8237,67.213.122.237
+28,NodeStake,https://nodestake.org,https://raw.githubusercontent.com/nodestake/brand-kit/refs/heads/main/logo.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.22977,21.01178,149.50.108.12
+29,Node.Monster,https://node.monster/,https://cdn.prod.website-files.com/675ea9b16a5b05d66c7e98ea/67b636ea0f3e9d5c778b16dd_logo.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,135.125.142.175
+30,Spider Node 🕷️,https://spidernode.net/,https://raw.githubusercontent.com/Coha05/libary/refs/heads/main/spider-node.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,103.244.115.229
+31,StakingCabin,https://www.stakingcabin.com,https://cdn.jsdelivr.net/gh/stakingcabin/stakingcabin@main/assets/logo512.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.2284,21.0522,57.128.236.111
+32,Kukis Global,https://kukis-global.com,https://www.kukis-global.com/assets/img/kg-logo.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,136.243.8.29
+33,Staketab,https://staketab.com,https://brand-staketab.s3.eu-north-1.amazonaws.com/staketab/validator.png,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,148.113.217.116
+34,Ghost,https://tryghost.xyz,https://pub-e803df4321b2451e8a9a7c0807d6da11.r2.dev/ghost_logo.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,178.63.163.175
+35,DeSpread,https://despread.io/,https://raw.githubusercontent.com/DeSpread/despread-assets/main/logo.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.2284,21.0522,57.128.236.121
+36,Kairos Research X Firstset,https://kairoscrypto.substack.com/,https://s3.amazonaws.com/keybase_processed_uploads/f386785ed2c920380e549cdb164c6805_360_360.jpg,St. Louis,Missouri,United States,America/Chicago,38.62727,-90.19789,173.201.36.252
+37,LakeStake,https://www.lakestake.io/,https://i.postimg.cc/fTHTBc00/LAKE-4.png,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.46.26
+38,Moonlet,https://moonlet.io/,https://images.moonlet.cloud/moonlet.png,Oslo,Oslo,Norway,Europe/Oslo,59.91273,10.74609,217.170.202.86
+39,StakeCraft,https://stakecraft.com,https://pbs.twimg.com/profile_images/1661349922988326912/84iOjM9W_400x400.jpg,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.46.48
+40,DTEAM,https://dteam.tech/,https://raw.githubusercontent.com/DTEAMTECH/identity/refs/heads/main/logo.png,Buenos Aires,Buenos Aires F.D.,Argentina,America/Argentina/Buenos_Aires,-34.61315,-58.37723,103.106.58.137
+41,ITRocket,https://itrocket.net/,https://server-4.itrocket.net/logo/itrocket_logo.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.22977,21.01178,149.50.110.16
+42,PathrockNetwork,https://pathrocknetwork.org/,https://pathrocknetwork.org/images/logo/prn.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,103.66.180.63
+43,P-OPS Team,https://www.pops.one,https://pops.one/img/pops-logo.png,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,84.32.103.144
+44,BlackBlocks,https://blackblocks.io,https://wiki.blackblocks.io/public/logo.svg,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.1025,8.6299,212.83.33.150
+45,Imperator.co,https://imperator.co,https://api.imperator.co/projects/logos/imperator.png,Sydney,New South Wales,Australia,Australia/Sydney,-33.86785,151.20732,51.161.172.236
+46,Spectrum Staking,https://spectrumstaking.net/,https://spectrumstaking.net/images/Spst_white_512x512.png,Bratislava,Bratislava Region,Slovakia,Europe/Bratislava,48.14816,17.10674,46.229.232.67
+48,Nodes.Guru,https://nodes.guru,https://nodes.guru/kit/mascot-light.svg,Dallas,Texas,United States,America/Chicago,32.78306,-96.80667,67.213.118.121
+49,FTP,https://ftptech.xyz,https://cdn.ftptech.xyz/logo.jpeg,Bruck an der Leitha,Lower Austria,Austria,Europe/Vienna,48.0242,16.7757,77.244.252.249
+50,[NODERS],https://noders.team,https://raw.githubusercontent.com/noders-team/brand-kit/refs/heads/main/logo/noders_logo_256.png,Dallas,Texas,United States,America/Chicago,32.78306,-96.80667,67.213.118.177
+51,The Workshop,https://theworkshop.sh,https://theworkshop.sh/logo-dark.svg,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,67.213.121.37
+52,Cryptomind,https://cryptomind.group,https://cdn.cryptomind.group/logo.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,15.235.227.62
+53,d10s,https://d10s.fi/,https://drive.google.com/u/0/drive-viewer/AKGpiha5NHYj3lffLhHgWFXtrP6vPCiVZYEeN3-njhy5p4c5nqNh_kpqGRy21myLngwkUgf122qdx2ALuk_lO6G5631ZNpEWFXOY9ko=s1600-rw-v1,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,84.32.103.149
+54,Chainode Tech,https://chainode.tech/,https://chainode.tech/img/logo.svg,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.45.28
+55,Stardust Staking,https://starduststaking.com,https://starduststaking.com/stardust_logo-4.png,Bratislava,Bratislava Region,Slovakia,Europe/Bratislava,48.14816,17.10674,46.229.233.178
+56,L0vd,https://l0vd.com/,https://res.cloudinary.com/dxwoj0bkm/image/upload/v1759235874/logo_big_jpqej3.svg,Sandefjord,Vestfold,Norway,Europe/Oslo,59.13118,10.21665,91.189.178.22
+57,Meria,https://www.meria.com/,https://s3.amazonaws.com/keybase_processed_uploads/3fcc4caebb2c8e949829a7b090be3805_360_360.jpg,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,51.178.216.176
+58,DELIGHT,https://delightlabs.io/,https://storage.delightlabs.io/images/DELIGHTLABS-Symbol-10px.png,Los Angeles,California,United States,America/Los_Angeles,34.05223,-118.24368,67.213.124.181
+60,STAKEME,https://stakeme.pro,https://raw.githubusercontent.com/stakeme-team/monad-metadata/master/logo/stakeme-logo.png,Saint Petersburg,St.-Petersburg,Russia,Europe/Moscow,59.93863,30.31413,212.41.28.44
+61,Synergy Nodes,https://www.synergynodes.com,https://raw.githubusercontent.com/SynergyNodes/SynergyNodes_Logo/refs/heads/main/Synergy_Nodes_Logo.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,103.241.50.100
+63,coinblitz.pro,https://coinblitz.pro,https://avatars.githubusercontent.com/u/136187247,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,65.21.67.248
+64,GO2Pro,https://go2pro.xyz/,https://raw.githubusercontent.com/GO2Pro/nodes/refs/heads/main/_i/_l2.png,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,135.181.243.134
+65,OriginStake,https://originstake.com,https://assets.r2.originstake.com/ogs-media/Logo/PNG/OriginStake_Logo_1.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,103.66.181.255
+66,Stakely,https://stakely.io,https://img.stakely.io/logos/stakely.png,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.46.29
+67,Cassini,https://x.com/Cassini0x,https://raw.githubusercontent.com/ccassini/tesnet-2/main/cassini-logo.png,New York City,New York,United States,America/New_York,40.71427,-74.00597,67.217.57.2
+68,cp0x_by_STAKRspace,https://cp0x.com/,https://raw.githubusercontent.com/cp0x/Eigenlayer-Operator/main/cp0x-logo-stakr.png,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,65.108.104.53
+69,0xHub,https://www.0xhub.xyz/,https://raw.githubusercontent.com/Mutu-s/metadata/main/0xhub.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.22977,21.01178,193.34.212.185
+70,F5 Nodes,https://f5nodes.com,https://f5nodes.com/logo.jpg,Chicago,Illinois,United States,America/Chicago,41.85003,-87.65005,84.32.48.23
+71,Parsec X Firstset,https://x.com/parsec_finance,https://www.firstset.xyz/parsec.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,103.244.115.207
+72,01node,https://01node.com,https://raw.githubusercontent.com/01node/brand-kit/refs/heads/main/png/01node-black-avatar-transparent.png,Bucharest,București,Romania,Europe/Bucharest,44.43225,26.10626,195.14.6.21
+73,1XP,https://1xp.com/,https://raw.githubusercontent.com/1XP-Inc/brand-kit/refs/heads/main/brandkit/logo/svg/1xp_logo_symbol_transparent.svg,Los Angeles,California,United States,America/Los_Angeles,34.05223,-118.24368,216.158.72.178
+74,StakeUs,https://stakeus.xyz,https://raw.githubusercontent.com/StakeUs/Stakeus_LOGO/refs/heads/main/logo-no-background.png,Cape Town,Western Cape,South Africa,Africa/Johannesburg,-33.92584,18.42322,197.85.190.15
+75,Laminated Labs,https://laminatedlabs.com/,https://laminated-labs-assets.s3.us-east-2.amazonaws.com/public/logo.png,Los Angeles,California,United States,America/Los_Angeles,34.05223,-118.24368,64.130.58.60
+76,Luganodes,https://luganodes.com/,https://static.lgns.xyz/logo.jpg,Mumbai,Maharashtra,India,Asia/Kolkata,19.07283,72.88261,148.113.49.19
+77,Omakase,https://0xmakase.co.jp/,https://raw.githubusercontent.com/0xmakase/monad-validator-info/master/config/logo.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,103.244.113.185
+78,Validation Cloud,https://www.validationcloud.io,https://cdn.prod.website-files.com/653acce1d72443c35298481d/653bbcd87fc49bd75a9b6a3e_Webclip.png,Chicago,Illinois,United States,America/Chicago,41.85003,-87.65005,45.40.97.48
+79,Stakecito,https://stakecito.com/,https://raw.githubusercontent.com/stakecito/resources/34e618b84bb4c0225d216cfd837087167d839c17/logo_stakecito.jpeg,Langenzersdorf,Lower Austria,Austria,Europe/Vienna,48.30432,16.36143,91.227.33.17
+80,✅ CryptoCrew,https://ccvalidators.com,https://avatars.githubusercontent.com/u/128591395,Klosterneuburg,Lower Austria,Austria,Europe/Vienna,48.30521,16.32522,37.252.186.107
+81,Silk Nodes,https://monad.silknodes.io/,https://raw.githubusercontent.com/Silk-Nodes/brand-assests/refs/heads/main/icon/Silk_Nodes180.jpg,Salt Lake City,Utah,United States,America/Denver,40.76078,-111.89105,136.36.77.130
+82,Huginn,https://huginn.tech,https://huginn.tech/assets/logos/huginn-logo.png,Draper,Utah,United States,America/Denver,40.52467,-111.86382,38.58.183.83
+83,CertHum,https://www.certhum.com,"https://static.wixstatic.com/media/78af9d_6df3502cf68c40dcb459d15edb76de48~mv2.png/v1/fill/w_138,h_138,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/CertHum%20Logo3.png",Ashburn,Virginia,United States,America/New_York,39.04372,-77.48749,40.160.64.212
+84,MCF,https://mcf.rocks/,https://mcf.rocks/images/assets/mcf-text-blue.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,91.98.178.228
+85,StakeAngle,https://stakeangle.com/,https://stakeangle.com/StakeAngle_logo.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,144.76.173.24
+86,TTT VN,https://tienthuattoan.com,https://insights.tienthuattoan.com/assets/logo/TTT-1024.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,194.48.168.21
+87,Syncnode,https://syncnode.tech/,https://raw.githubusercontent.com/syncnode-srl/syncnode/refs/heads/master/logo2.jpeg,Soest,Utrecht,The Netherlands,Europe/Amsterdam,52.17333,5.29167,5.187.35.162
+88,Grassets,https://grassets.tech,https://grassets.tech/wp-content/uploads/2021/09/Logo-final-social-media.svg,Strasbourg,Grand Est,France,Europe/Paris,48.58392,7.74553,134.119.187.253
+89,RHINO 🦏,https://rhinostake.com,https://snapshots.rhinostake.com/rhinoshare/RhinoLogoFilled.Dark.png,Salt Lake City,Utah,United States,America/Denver,40.76078,-111.89105,173.231.17.106
+90,Brightlystake,https://brightlystake.com,https://github.com/Brightlystake/Brightlystake_Official/blob/main/Brightlystake.png?raw=true,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,15.235.235.150
+91,Encapsulate,https://encapsulate.xyz/,https://raw.githubusercontent.com/encapsulate-xyz/assets/refs/heads/main/encapsulate.png,Strasbourg,Grand Est,France,Europe/Paris,48.58392,7.74553,134.119.182.147
+92,CMS Holdings,http://cmsholdings.io/,https://raw.githubusercontent.com/DaveWK/general_repo/refs/heads/main/cms-logo-only.png,Somerville,Massachusetts,United States,America/New_York,42.3876,-71.0995,185.172.191.3
+93,Quicknode,https://quicknode.com,https://www.quicknode.com/staked-validator-logo.png,New York City,New York,United States,America/New_York,40.71427,-74.00597,74.63.235.79
+94,TrustedPoint,https://trusted-point.com,https://trusted-point.s3.amazonaws.com/logo/TrustedPointGoldAndRedWithBackground.png,Bruck an der Leitha,Lower Austria,Austria,Europe/Vienna,48.0242,16.7757,77.244.252.250
+95,Chainlayer,https://chainlayer.io/,https://chainlayer.io/icons/icon-512x512.png,Oslo,Oslo,Norway,Europe/Oslo,59.91273,10.74609,185.101.32.6
+96,NodesHub,https://NodesHub.online,https://files.nodeshub.online/brand/n-color.png,Jaipur,Rajasthan,India,Asia/Kolkata,26.91962,75.78781,183.83.177.132
+97,Backpack,https://backpack.exchange/,https://i.ibb.co/ynk9vQLD/backpack.png,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,64.130.43.22
+98,auri0x,https://auri0x.io,https://raw.githubusercontent.com/Averonix/a0x/refs/heads/main/wJC1SSNQ_400x400.jpg,Benoni,Gauteng,South Africa,Africa/Johannesburg,-26.1222,28.2056,139.84.231.207
+99,Qubelabs,https://www.qubelabs.io,https://www.qubelabs.io/images/qubelabs-logo.png,Šiauliai,Siauliai,Lithuania,Europe/Vilnius,55.93333,23.31667,84.32.97.43
+100,ASXN,https://asxn.xyz/,https://raw.githubusercontent.com/asxnres/brand_assets/refs/heads/main/logo_16in16in.png,Tokyo,Tokyo,Japan,Asia/Tokyo,35.6895,139.69171,38.155.79.79
+101,Swissstarnode,https://swissstarnode.tech/,https://swissstarnode.tech/images/http___swissstarnode.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.22977,21.01178,149.50.101.30
+102,polkachu.com,https://www.polkachu.com,https://www.polkachu.com/images/polkachu.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,136.243.36.60
+103,Validatus,https://validatus.com/,https://res.cloudinary.com/djhalnnus/image/upload/v1724758514/Validatus-CI/avatar.png,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,65.109.62.122
+104,Needlecast,https://envoys.io/,https://s3.amazonaws.com/keybase_processed_uploads/2a2cd28d7581adf8694975d0ec0d0705_360_360.jpg,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.46.37
+105,StakeSquid,https://stakesquid.com,https://stakesquid.com/assets/stakesquid-logo.png,São Paulo,São Paulo,Brazil,America/Sao_Paulo,-23.5475,-46.63611,181.214.48.17
+106,HoodRun,https://hoodrun.io,https://s3.amazonaws.com/keybase_processed_uploads/a1600c5650b26f850982dac401912305_360_360.jpg,Draper,Utah,United States,America/Denver,40.52467,-111.86382,38.92.24.45
+107,EmberStake,https://emberstake.xyz/,https://emberstake.xyz/logo.png,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,95.216.1.89
+108,CosmosSpaces,https://cosmosspaces.zone/,https://blob.cosmosspaces.zone/logo.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,91.98.180.106
+109,zim.one,https://zim.one/,https://s.getgems.io/nft/s/6762/67621bfc7c2e492fa0cd9697/nft/1245763.jpg,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,135.181.229.145
+110,Provalidator,https://provalidator.com,https://provalidator.com/images/logo.png,Singapore,Singapore,Singapore,Asia/Singapore,1.28967,103.85007,103.66.181.63
+111,lux8net,https://lux8.net/,https://lux8.net/img/logo/star.svg,Tokyo,Kanagawa,Japan,Asia/Tokyo,35.6895,139.69171,2.57.215.212
+112,Proof Group,https://proofgroup.xyz,https://raw.githubusercontent.com/proofgp/static/refs/heads/main/monad/logo-red.png,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,91.134.76.137
+113,CroutonDigital,https://crouton.digital/,https://crouton.digital/assets/brand/logos/crouton_digital_green_white_symbol.png,Bruck an der Leitha,Lower Austria,Austria,Europe/Vienna,48.0242,16.7757,77.244.252.251
+114,nadradar,https://nadradar.com,https://raw.githubusercontent.com/nodeinfra/publicinfo/refs/heads/main/nadradar.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.1924,8.6753,64.130.50.123
+115,r93AX Nodes,https://x.com/R93ax,https://s3.amazonaws.com/keybase_processed_uploads/2acc5b6081ed9b0c0a5ec1d5e52cd005_360_360.jpg,London,England,United Kingdom,Europe/London,51.50853,-0.12574,194.164.216.156
+116,Flipside Crypto,https://flipsidecrypto.xyz,https://raw.githubusercontent.com/fsc-platform/blockchain-logos/main/flipside_icon.png,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,148.113.220.199
+117,Coinage x DAIC,https://daic.capital/,https://raw.githubusercontent.com/DAICers/coinage_x_daic/refs/heads/main/files/images/DAIC-CNG-Ape_360_moniker.png,Vienna,Vienna,Austria,Europe/Vienna,48.20849,16.37208,45.144.209.124
+118,Stakeware,https://stakeware.xyz,https://stakeware.xyz/logo.png,Draper,Utah,United States,America/Denver,40.52467,-111.86382,38.46.220.212
+119,CoinSummer Labs,https://coinsummer.io,https://s3.amazonaws.com/keybase_processed_uploads/9af13a1fc97728266b5c1e36fa12e305_360_360.jpg,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,91.98.179.172
+120,Validatrium,https://validatrium.com/,https://raw.githubusercontent.com/Validatrium/public-uploads/main/validatrium1-1.png,Bruck an der Leitha,Lower Austria,Austria,Europe/Vienna,48.0242,16.7757,77.244.252.252
+121,Talentum Labs,https://talentum.id,https://talentum.id/images/avatar-orange.png,Bexley,England,United Kingdom,Europe/London,51.44162,0.14866,57.129.148.129
+122,BlockHunters 🎯,https://blockhunters.org/,https://raw.githubusercontent.com/blockhunters-org/operator/refs/heads/main/logo.png,Warsaw,Mazovia,Poland,Europe/Warsaw,52.2284,21.0522,57.128.211.221
+123,P2P.org 💙,http://p2p.org/,https://cdn.p2p.org/p2p360_logo.png,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,64.130.43.200
+124,Ledger by P2P.org,https://www.ledger.com/,https://cdn.live.ledger.com/icons/ledger.png,Newark,New Jersey,United States,America/New_York,40.73566,-74.17237,64.130.37.176
+125,Blockdaemon,https://www.blockdaemon.com/,https://raw.githubusercontent.com/Blockdaemon/media-kit/main/images/Blockdaemon-Source-Forge.png,Amsterdam,North Holland,The Netherlands,Europe/Amsterdam,52.37403,4.88969,64.130.52.133
+126,amonstaker,https://superx1.odoo.com/,https://raw.githubusercontent.com/SuperX-X/images/refs/heads/main/pfp.png,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.45.18
+127,Cogent ⚙️  by SOL Strategies,https://cogentcrypto.io,https://img.solstrategies.io/cogent.jpg,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.1924,8.6753,64.130.57.84
+128,Laine ❤️ by SOL Strategies,https://stake.laine.one/,https://laine.one/images/ci/icon.png,Los Angeles,California,United States,America/Los_Angeles,34.05223,-118.24368,64.130.58.135
+129,Figment,https://figment.io,https://figment-logo.s3.ca-central-1.amazonaws.com/Figment-logo.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,57.129.97.47
+130,node101,https://node101.io,https://keybase.io/indie_validators/picture,Draper,Utah,United States,America/Denver,40.52467,-111.86382,38.97.61.214
+131,GulfLabs,www.gulflabs.xyz,https://raw.githubusercontent.com/NunoyHaxxana/GL/refs/heads/main/Gulflabslogo.jpg,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,148.113.220.197
+132,Ankr,https://www.ankr.com,https://www.ankr.com/_next/static/images/ankr-blue-logo-9cb21287573aa404ab083c44faee3db4.png,New York City,New York,United States,America/New_York,40.71427,-74.00597,173.244.202.19
+133,H2O Nodes,https://h2o-nodes.com/,https://framerusercontent.com/images/7Zz5Y0ZD7koVSLRvf9o9mQCcpTQ.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,193.243.164.213
+134,Republic,https://www.republic.com,https://pbs.twimg.com/profile_images/1797998012238548992/3hF576XA_400x400.jpg,Sydney,New South Wales,Australia,Australia/Sydney,-33.86785,151.20732,51.161.218.61
+135,Tessellated,https://tessellated.io,https://tessellated-misc.s3.us-west-2.amazonaws.com/tessellated-logo.png,Miami,Florida,United States,America/New_York,25.77427,-80.19366,69.67.150.195
+136,Asymmetric Research,https://asymmetric.re,https://asymmetric-research-web-assets.s3.eu-west-1.amazonaws.com/AR-Logo.png,Newark,New Jersey,United States,America/New_York,40.73566,-74.17237,64.130.37.202
+137,Hex Trust,https://www.hextrust.com/,https://raw.githubusercontent.com/BCWResearch/bcw-logo/refs/heads/main/trust.jpg,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,64.34.85.31
+138,HashKey Cloud,https://www.hashkey.cloud/,https://raw.githubusercontent.com/HashKeyCloud/HashKey-Cloud-Logo/main/hashkey-cloud-white.png,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,51.210.230.184
+139,blockscape,https://blockscape.network,https://blockscape.network/logo/logo-color.png,Sydney,New South Wales,Australia,Australia/Sydney,-33.86785,151.20732,51.161.174.99
+140,NTT Digital,https://nttdigital.io,https://figment-logo.s3.ca-central-1.amazonaws.com/NTTDigital.jpg,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,51.75.213.150
+141,Artifact,https://artifact-systems.io,https://raw.githubusercontent.com/artifactstaking/brand-assets/refs/heads/main/logos/ArtifactSystems_Logo.png,Dublin,Leinster,Ireland,Europe/Dublin,53.33306,-6.24889,212.126.35.133
+142,Lavender.Five Nodes 🐝,https://www.lavenderfive.com,https://snapshots.lavenderfive.com/dropshare/LavenderFive_IconLarge.png,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,65.21.8.230
+143,QuantNode,https://quantnode.tech/,https://raw.githubusercontent.com/QuantNodeTech/identity/refs/heads/main/quantnode256.png,Pittsburgh,Pennsylvania,United States,America/New_York,40.44062,-79.99589,64.130.56.38
+144,Informal Systems,https://informal.systems,https://raw.githubusercontent.com/cephalopodequipment/config/main/media/informal-systems-logo.png,New York City,New York,United States,America/New_York,40.71427,-74.00597,67.213.112.241
+145,FP Validated,https://4pillars.io/en/fp-validated,https://raw.githubusercontent.com/fpvalidator/felix/main/FPValidated.png,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,57.128.43.221
+146,RockX,https://www.rockx.com/,https://static.rockx.com/img/logo/rockx-logo.png,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,15.235.117.252
+147,AltLayer,https://altlayer.io/,https://files.altlayer.io/AltLayer-brand-kit/Token%20Icon/PNG/Token%20Icon_Purple_02.png,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,95.216.27.152
+148,Finoa Consensus Services,https://finoa-fcs.io/products-delegated-staking/,https://raw.githubusercontent.com/Finoa-Consensus-Services/eigenlayer/main/logo.png,Calais,Hauts-de-France,France,Europe/Paris,50.95194,1.85635,91.134.37.103
+149,Fountainhead,https://fountainhead.network,https://pbs.twimg.com/profile_images/1901618986070011905/F6Ix-Mbc_400x400.jpg,Tsuen Wan,Tsuen Wan,Hong Kong,Asia/Hong_Kong,22.37137,114.11329,46.203.222.4
+150,Node3Tech,https://www.node3tech.io,https://node3tech.io/wp-content/uploads/2025/06/logo2-2048x2048.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,91.98.180.168
+151,Simply Staking,https://www.simplystaking.com,https://simplystaking.com/wp-content/uploads/2025/07/Asset-1.webp,San Pawl il-Baħar,Saint Paul’s Bay,Malta,Europe/Malta,35.95064,14.41561,80.64.208.163
+152,stakefish,https://stake.fish,https://raw.githubusercontent.com/stakefish/stakefish-metadata/main/stakefish-logo.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,64.34.85.75
+153,xLabs,https://xlabs.xyz,https://xlabs.xyz/xlabs.png,Buenos Aires,Buenos Aires F.D.,Argentina,America/Argentina/Buenos_Aires,-34.61315,-58.37723,103.106.58.143
+154,forthenads,https://forthenads.xyz,https://raw.githubusercontent.com/vasdie/forthenads/main/forthenads-logo.png,San José,San José,Costa Rica,America/Costa_Rica,9.9262,-84.0731,45.239.67.215
+155,Unit 410,https://unit410.com/,https://unit410.com/images/unit410-square-black.png,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,67.213.121.15
+156,Pharus,https://www.thepharus.com/,https://www.thepharus.com/pharus-logo.png,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.46.45
+157,rskl,https://rskl.xyz/,https://raw.githubusercontent.com/legalov/goldfinch-bot-fetcher/b7153c9d633121859f0b2abaf7374622444ee9e3/rskl.svg,Saint Petersburg,St.-Petersburg,Russia,Europe/Moscow,59.93863,30.31413,178.72.133.30
+158,Zellic,https://zellic.io/,https://assets.zellic.io/pfp.jpg,Helsinki,Uusimaa,Finland,Europe/Helsinki,60.16952,24.93545,95.216.8.83
+159,InfStones,https://infstones.com/,https://infstones.com/assets/icons/footer_logo.svg,Ashburn,Virginia,United States,America/New_York,39.04372,-77.48749,40.160.64.24
+160,GalaxyDigital,https://www.galaxy.com/,https://dmpf98hz4x3ps.cloudfront.net/galaxy.png,Lille,Hauts-de-France,France,Europe/Paris,50.633,3.0586,79.137.88.176
+161,Animoca Brands,https://www.animocabrands.com/,https://storage.googleapis.com/animoca-brands-public-content/img/AB360x360.png,Šiauliai,Siauliai,Lithuania,Europe/Vilnius,55.93333,23.31667,84.32.97.45
+162,Stake Shark,https://stakeshark.io,https://raw.githubusercontent.com/StakeSharkIo/logo/refs/heads/main/stakeshark%20logo%20512x512.png,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,148.113.189.204
+163,Chainflow,https://chainflow.io,https://raw.githubusercontent.com/Chainflow/chainflow-metadata/refs/heads/main/JPG/Chainflow_symbol_fullcolor.jpg,Šiauliai,Siauliai,Lithuania,Europe/Vilnius,55.93333,23.31667,84.32.97.44
+164,DIN,https://www.din.build/,https://qluoylkpykklajrjkfdh.supabase.co/storage/v1/object/public/operator-logos/DIN_Logo-Circ_Orange.png,Beauharnois,Quebec,Canada,America/Toronto,45.31341,-73.8725,148.113.187.211
+165,Kraken,https://www.kraken.com,https://s3.amazonaws.com/keybase_processed_uploads/9d5ddb4ba450ba6793592fef2d263b05_360_360.jpg,Frankfurt am Main,Hesse,Germany,Europe/Berlin,50.11552,8.68417,147.28.226.99
+166,Goldsky,https://goldsky.com/,https://goldsky.com/images/favicon.svg,Los Angeles,California,United States,America/Los_Angeles,34.05223,-118.24368,67.213.124.177
+167,SenseiNode,https://www.senseinode.com/,https://s3.amazonaws.com/keybase_processed_uploads/426bcc7584e6acccf6db02517ea87905_360_360.jpg,London,England,United Kingdom,Europe/London,51.50853,-0.12574,64.34.86.21
+168,Staking Facilities,https://stakingfacilities.com/,https://cdn.prod.website-files.com/5f699e8d6a7c1154451f214a/6840576566a3373a84dbfec2_Icon_White.png,Stockholm,Stockholm,Sweden,Europe/Stockholm,59.32938,18.06871,185.189.44.167
+169,Gemini,https://gemini.com/staking,https://www.gemini.com/static/images/gemini-orange@360x360.png,Los Angeles,California,United States,America/Los_Angeles,34.05223,-118.24368,64.130.58.189
+170,Triton one,https://triton.one,https://triton-public-us.s3.amazonaws.com/logonew.svg,Pittsburgh,Pennsylvania,United States,America/New_York,40.44062,-79.99589,64.130.56.76
+171,BitGo,https://www.bitgo.com/,https://raw.githubusercontent.com/the-smooth-operator/test/refs/heads/main/Shield%20Logo%20Kockout_Blue-Light.png,Dublin,Leinster,Ireland,Europe/Dublin,53.33306,-6.24889,212.126.35.133
+172,Allnodes,https://www.allnodes.com,https://www.allnodes.com/assets/logo.png,Falkenstein,Saxony,Germany,Europe/Berlin,50.47788,12.37129,136.243.72.174
+177,Pacific Meta,https://pacific-meta.co.jp/,https://pacific-meta-assets-01.s3.ap-northeast-1.amazonaws.com/public/pacificmetalogo.jpg,,,,,,,
+179,0230fa478f6c0e6cab9edc0647080674a784d060328f343cb5e0c5bb3e4e15696e,,,,,,,,,
+182,Water Cooler Studios,https://www.wcs.tech,https://wcs-logos.s3.us-east-1.amazonaws.com/wcs-logo-dark-bg.png,,,,,,,
+183,Forest Staking,https://foreststaking.com,https://raw.githubusercontent.com/ForestStaking/Forest_Staking_Logo/refs/heads/main/Forest_Staking_Logo_main.jpg,,,,,,,

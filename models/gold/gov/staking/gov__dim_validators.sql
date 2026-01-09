@@ -61,11 +61,29 @@ validator_labels AS (
         {{ ref('core__dim_labels') }}
     WHERE
         label_subtype = 'validator'
+),
+
+-- Get validator metadata from seed (location, website, image)
+validator_meta AS (
+    SELECT
+        validator_id,
+        validator_name AS meta_validator_name,
+        website,
+        image,
+        city,
+        region,
+        country,
+        timezone,
+        latitude,
+        longitude,
+        ip_address
+    FROM
+        {{ ref('gov__validator_locations') }}
 )
 
 SELECT
     vc.validator_id,
-    vl.validator_name,
+    COALESCE(vl.validator_name, vm.meta_validator_name) AS validator_name,
     vc.auth_address,
     a.consensus_address,
     vc.created_at,
@@ -83,6 +101,16 @@ SELECT
     ls.secp_pubkey,
     ls.bls_pubkey,
     ls.snapshot_date AS latest_snapshot_date,
+    -- Location and metadata from seed
+    vm.website,
+    vm.image,
+    vm.city,
+    vm.region,
+    vm.country,
+    vm.timezone,
+    vm.latitude,
+    vm.longitude,
+    vm.ip_address,
     {{ dbt_utils.generate_surrogate_key(['vc.validator_id']) }} AS gov__dim_validators_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
@@ -98,3 +126,6 @@ LEFT JOIN
 LEFT JOIN
     validator_labels vl
     ON LOWER(a.consensus_address) = LOWER(vl.address)
+LEFT JOIN
+    validator_meta vm
+    ON vc.validator_id = vm.validator_id
