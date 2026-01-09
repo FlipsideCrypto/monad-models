@@ -15,7 +15,8 @@ Staking balance states:
 Flow:
 - Delegate: increases active_balance
 - Undelegate: decreases active_balance, increases pending_withdrawal_balance
-- Withdraw: decreases pending_withdrawal_balance (funds returned to delegator)
+- Withdraw: decreases pending_withdrawal_balance by the UNDELEGATION amount (not withdrawal amount,
+  which includes rewards earned during the withdrawal delay period)
 
 IMPORTANT: This model calculates balances from event history. If events are missing
 (e.g., delegations before data collection started), balances will be incorrect.
@@ -85,19 +86,31 @@ undelegations AS (
 ),
 
 -- Withdrawals remove from pending (funds returned to delegator)
+-- Use the UNDELEGATION amount (not withdrawal amount) since withdrawal includes rewards earned during delay
+-- withdraw_id can be reused after withdrawal, so match to most recent undelegation BEFORE the withdrawal
 withdrawals AS (
     SELECT
-        block_timestamp::DATE AS action_date,
-        validator_id,
-        delegator_address,
+        w.block_timestamp::DATE AS action_date,
+        w.validator_id,
+        w.delegator_address,
         0 AS active_change,
-        -amount AS pending_change
+        -COALESCE(u.amount, w.amount) AS pending_change  -- Use undelegation amount if available
     FROM
-        {{ ref('gov__fact_withdrawals') }}
+        {{ ref('gov__fact_withdrawals') }} w
+    LEFT JOIN
+        {{ ref('gov__fact_undelegations') }} u
+        ON w.validator_id = u.validator_id
+        AND w.delegator_address = u.delegator_address
+        AND w.withdraw_id = u.withdraw_id
+        AND u.block_timestamp < w.block_timestamp  -- Undelegation must be before withdrawal
 {% if is_incremental() %}
     WHERE
-        block_timestamp::DATE > (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
+        w.block_timestamp::DATE > (SELECT MAX(balance_date) - INTERVAL '3 days' FROM {{ this }})
 {% endif %}
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY w.validator_id, w.delegator_address, w.withdraw_id, w.block_timestamp
+        ORDER BY u.block_timestamp DESC NULLS LAST  -- Get most recent undelegation before this withdrawal
+    ) = 1
 ),
 
 all_actions AS (
@@ -139,13 +152,14 @@ pairs_with_dates AS (
 ),
 
 -- Calculate daily net changes
+-- Round to 6 decimals to eliminate floating-point precision artifacts early
 daily_changes AS (
     SELECT
         action_date,
         validator_id,
         delegator_address,
-        SUM(active_change) AS daily_active_change,
-        SUM(pending_change) AS daily_pending_change
+        ROUND(SUM(active_change), 6) AS daily_active_change,
+        ROUND(SUM(pending_change), 6) AS daily_pending_change
     FROM
         all_actions
     GROUP BY
@@ -155,6 +169,7 @@ daily_changes AS (
 ),
 
 -- Join and calculate running balances
+-- Zero out values smaller than threshold (0.0001) to eliminate floating-point artifacts
 balances AS (
     SELECT
         pwd.balance_date,
@@ -164,28 +179,56 @@ balances AS (
         COALESCE(dc.daily_pending_change, 0) AS daily_pending_change,
 {% if is_incremental() %}
         -- In incremental mode, add previous balance as starting point
-        COALESCE(pb.prev_active_balance, 0) + SUM(COALESCE(dc.daily_active_change, 0)) OVER (
-            PARTITION BY pwd.validator_id, pwd.delegator_address
-            ORDER BY pwd.balance_date
-            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) AS active_balance,
-        COALESCE(pb.prev_pending_balance, 0) + SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
-            PARTITION BY pwd.validator_id, pwd.delegator_address
-            ORDER BY pwd.balance_date
-            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) AS pending_withdrawal_balance
+        CASE
+            WHEN ABS(COALESCE(pb.prev_active_balance, 0) + SUM(COALESCE(dc.daily_active_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )) < 0.0001 THEN 0
+            ELSE ROUND(COALESCE(pb.prev_active_balance, 0) + SUM(COALESCE(dc.daily_active_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ), 6)
+        END AS active_balance,
+        CASE
+            WHEN ABS(COALESCE(pb.prev_pending_balance, 0) + SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )) < 0.0001 THEN 0
+            ELSE ROUND(COALESCE(pb.prev_pending_balance, 0) + SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ), 6)
+        END AS pending_withdrawal_balance
 {% else %}
         -- Full refresh: sum from beginning
-        SUM(COALESCE(dc.daily_active_change, 0)) OVER (
-            PARTITION BY pwd.validator_id, pwd.delegator_address
-            ORDER BY pwd.balance_date
-            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) AS active_balance,
-        SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
-            PARTITION BY pwd.validator_id, pwd.delegator_address
-            ORDER BY pwd.balance_date
-            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) AS pending_withdrawal_balance
+        CASE
+            WHEN ABS(SUM(COALESCE(dc.daily_active_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )) < 0.0001 THEN 0
+            ELSE ROUND(SUM(COALESCE(dc.daily_active_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ), 6)
+        END AS active_balance,
+        CASE
+            WHEN ABS(SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )) < 0.0001 THEN 0
+            ELSE ROUND(SUM(COALESCE(dc.daily_pending_change, 0)) OVER (
+                PARTITION BY pwd.validator_id, pwd.delegator_address
+                ORDER BY pwd.balance_date
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ), 6)
+        END AS pending_withdrawal_balance
 {% endif %}
     FROM
         pairs_with_dates pwd
